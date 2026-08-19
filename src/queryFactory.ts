@@ -1,7 +1,7 @@
 import { queryOptions } from '@tanstack/react-query';
 
-import { fetchMe } from '@/api/auth/auth.api';
 import { fetchProducts, type ProductListParams } from '@/api/products/product.api';
+import { fetchMe, fetchRecentSearches, fetchRegions } from '@/api/users/user.api';
 
 /**
  * 모든 queryKey 는 여기서만 만듭니다. 화면에서 배열 리터럴을 직접 쓰지 않습니다.
@@ -19,18 +19,31 @@ export const queryKeys = {
     details: () => [...queryKeys.products.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.products.details(), id] as const,
   },
-  auth: {
-    all: ['auth'] as const,
-    me: () => [...queryKeys.auth.all, 'me'] as const,
+  users: {
+    all: ['users'] as const,
+    me: () => [...queryKeys.users.all, 'me'] as const,
+    recentSearches: () => [...queryKeys.users.all, 'recent-searches'] as const,
+    regions: () => ['regions'] as const,
   },
 } as const;
 
 export const queryFactory = {
-  auth: {
+  users: {
     me: () =>
       queryOptions({
-        queryKey: queryKeys.auth.me(),
+        queryKey: queryKeys.users.me(),
         queryFn: fetchMe,
+      }),
+    recentSearches: () =>
+      queryOptions({
+        queryKey: queryKeys.users.recentSearches(),
+        queryFn: fetchRecentSearches,
+      }),
+    regions: () =>
+      queryOptions({
+        queryKey: queryKeys.users.regions(),
+        queryFn: fetchRegions,
+        staleTime: Infinity,
       }),
   },
   products: {

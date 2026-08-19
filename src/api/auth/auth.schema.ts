@@ -7,14 +7,6 @@ export const authUserSchema = z.object({
 });
 
 /** 로그인 응답. apiClient 가 localStorage 에 넣는 세 값과 짝이 맞습니다. */
-/** GET /users/me 응답 */
-export const meSchema = z.object({
-  id: z.coerce.string(),
-  email: z.email(),
-  nickname: z.string().nullable().optional(),
-  profileImageUrl: z.string().nullable().optional(),
-});
-
 export const loginResponseSchema = z.object({
   accessToken: z.string(),
   tokenType: z.string().optional(),
@@ -62,7 +54,6 @@ export const loginFormSchema = z.object({
 export const signupRequestSchema = z.object({ email, password });
 
 export type AuthUser = z.infer<typeof authUserSchema>;
-export type Me = z.infer<typeof meSchema>;
 export type LoginResponse = z.infer<typeof loginResponseSchema>;
 export type SignupFormValues = z.infer<typeof signupFormSchema>;
 export type LoginFormValues = z.infer<typeof loginFormSchema>;

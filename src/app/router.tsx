@@ -8,6 +8,8 @@ import { HomePage } from '@/pages/HomePage';
 import { LoginPage } from '@/pages/LoginPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { ProductListPage } from '@/pages/ProductListPage';
+import { ProfilePage } from '@/pages/ProfilePage';
+import { SettingsPage } from '@/pages/SettingsPage';
 import { SearchPage } from '@/pages/SearchPage';
 import { SignupPage } from '@/pages/SignupPage';
 
@@ -15,10 +17,8 @@ import { SignupPage } from '@/pages/SignupPage';
 const COMING_SOON = [
   { path: ROUTES.bestDeal, title: 'Best Deal' },
   { path: ROUTES.howItWorks, title: '이용 방법' },
-  { path: ROUTES.profile, title: '내 프로필' },
   { path: ROUTES.wishlist, title: '찜 목록' },
   { path: ROUTES.history, title: '이동 내역' },
-  { path: ROUTES.settings, title: '설정' },
 ];
 
 export const router = createBrowserRouter([
@@ -30,6 +30,8 @@ export const router = createBrowserRouter([
       { index: true, Component: HomePage },
       { path: ROUTES.search, Component: SearchPage },
       { path: ROUTES.products, Component: ProductListPage },
+      { path: ROUTES.profile, Component: ProfilePage },
+      { path: ROUTES.settings, Component: SettingsPage },
       ...COMING_SOON.map(({ path, title }) => ({
         path,
         element: <ComingSoonPage title={title} />,

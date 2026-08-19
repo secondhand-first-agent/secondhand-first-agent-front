@@ -3,11 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 
 import { clearSession } from '@/api/session';
+import { Avatar } from '@/components/Avatar';
 import { ROUTES } from '@/app/routes';
 import { queryFactory } from '@/queryFactory';
 
 const MENU_ITEMS = [
-  { to: ROUTES.profile, label: '내 프로필' },
+  { to: ROUTES.profile, label: '마이페이지' },
   { to: ROUTES.wishlist, label: '찜 목록' },
   { to: ROUTES.history, label: '이동 내역' },
   { to: ROUTES.settings, label: '설정' },
@@ -17,7 +18,7 @@ export function ProfileMenu() {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const { data: me } = useQuery(queryFactory.auth.me());
+  const { data: me } = useQuery(queryFactory.users.me());
 
   useEffect(() => {
     if (!open) return;
@@ -37,8 +38,7 @@ export function ProfileMenu() {
     };
   }, [open]);
 
-  const displayName = me?.nickname || me?.email?.split('@')[0] || '';
-  const initial = displayName.charAt(0).toUpperCase();
+  const displayName = me?.name || me?.email?.split('@')[0] || '';
 
   const onLogout = () => {
     setOpen(false);
@@ -54,9 +54,9 @@ export function ProfileMenu() {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="내 프로필 메뉴"
-        className="flex size-9 items-center justify-center overflow-hidden rounded-full bg-gray-900 text-sm font-medium text-white"
+        className="block rounded-full focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 focus:outline-none"
       >
-        {me?.profileImageUrl ? <img src={me.profileImageUrl} alt="" className="size-full object-cover" /> : initial}
+        <Avatar name={displayName} imageUrl={me?.profileImageUrl} />
       </button>
 
       {open ? (

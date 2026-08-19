@@ -7,7 +7,12 @@ export const ENDPOINTS = {
     signup: '/users/signup',
     login: '/users/login',
     refresh: '/users/token/refresh',
+  },
+  users: {
     me: '/users/me',
+    // 아래 둘은 아직 명세가 없습니다.
+    regions: '/regions',
+    recentSearches: '/users/me/searches',
   },
   products: {
     list: '/products',
