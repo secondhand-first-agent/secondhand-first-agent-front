@@ -18,6 +18,7 @@ import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 're
 import { useNavigate, useSearchParams } from 'react-router';
 
 import type { Condition, Platform, SearchResultProduct, SearchSort } from '@/api/searches/search.schema';
+import assistantAvatarUrl from '@/assets/image/cat-avatar.png';
 import { productDetailPath } from '@/app/routes';
 import { Dropdown } from '@/components/Dropdown';
 import { createMockSearchData } from '@/features/search/search.mock';
@@ -123,33 +124,14 @@ function Tag({ children }: { children: ReactNode }) {
   );
 }
 
-/**
- * 어시스턴트 얼굴. 눈(세로 캡슐) + 입(호)만 있는 최소 형태로,
- * 32px에서도 뭉개지지 않도록 눈은 채움 도형, 입은 단일 스트로크로 그린다.
- * 색은 currentColor를 따라간다.
- */
-function AssistantFace({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
-      <rect x="6" y="6.2" width="3.4" height="6.4" rx="1.7" fill="currentColor" />
-      <rect x="14.6" y="6.2" width="3.4" height="6.4" rx="1.7" fill="currentColor" />
-      <path
-        d="M8.2 15.6c1 1.4 2.3 2.1 3.8 2.1s2.8-.7 3.8-2.1"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 function AssistantAvatar({ small = false }: { small?: boolean }) {
   return (
-    <span
-      className={`bg-ds-brand text-ds-text-inverse flex shrink-0 items-center justify-center rounded-full ${small ? 'size-8' : 'size-10'}`}
-    >
-      <AssistantFace className={small ? 'size-6' : 'size-7'} />
-    </span>
+    <img
+      src={assistantAvatarUrl}
+      alt=""
+      // 이미지 자체에 원형 배경이 그려져 있고 모서리는 흰색이라, 원으로 잘라낸다.
+      className={`shrink-0 rounded-full object-cover ${small ? 'size-8' : 'size-10'}`}
+    />
   );
 }
 
@@ -414,7 +396,7 @@ export function SearchPage() {
           <header className="border-ds-border flex items-center gap-3 border-b px-4 py-4 sm:px-5">
             <AssistantAvatar />
             <div>
-              <h1 className="text-ds-text text-ds-h-sm font-ds-bold">AI 구매 어시스턴트</h1>
+              <h1 className="text-ds-text text-ds-h-sm font-ds-bold">AI 구매 어시스턴스 고르밍</h1>
               <p className="text-ds-success-text text-ds-body-sm font-ds-medium mt-0.5 flex items-center gap-1.5">
                 <span className="bg-ds-success-border size-1.5 rounded-full" aria-hidden /> 3개 플랫폼 실시간 탐색 중
               </p>

@@ -1,7 +1,80 @@
 @import 'tailwindcss';
 
+/* SUIT 자체 호스팅. 가변 폰트가 아니라 무게별 정적 파일이다. */
+@font-face {
+  font-family: 'SUIT';
+  src: url('./assets/fonts/SUIT-Thin.woff2') format('woff2');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SUIT';
+  src: url('./assets/fonts/SUIT-ExtraLight.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SUIT';
+  src: url('./assets/fonts/SUIT-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SUIT';
+  src: url('./assets/fonts/SUIT-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SUIT';
+  src: url('./assets/fonts/SUIT-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SUIT';
+  src: url('./assets/fonts/SUIT-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SUIT';
+  src: url('./assets/fonts/SUIT-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SUIT';
+  src: url('./assets/fonts/SUIT-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SUIT';
+  src: url('./assets/fonts/SUIT-Heavy.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
-  --font-sans: 'SUIT Variable', SUIT, system-ui, sans-serif;
+  --font-sans: SUIT, system-ui, sans-serif;
 
   --color-brand: #10b981;
   --color-brand-dark: #059669;
@@ -13,15 +86,13 @@
      ========================================================================== */
 
   /* --- font.family.* (Atlassian Sans는 비공개 폰트라 SUIT으로 대체) --- */
-  --font-ds:
-    'SUIT Variable', SUIT, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Ubuntu, 'Helvetica Neue',
-    sans-serif;
+  --font-ds: SUIT, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Ubuntu, 'Helvetica Neue', sans-serif;
 
   /* --- font.weight.* --- */
   --font-weight-ds-regular: 400;
   --font-weight-ds-medium: 500;
   --font-weight-ds-semibold: 600;
-  --font-weight-ds-bold: 653;
+  --font-weight-ds-bold: 700; /* 가변 폰트였다면 ADS 원래 값은 653 */
 
   /* --- font.body.* --- */
   --text-ds-body-sm: 0.75rem;
@@ -160,8 +231,16 @@
     -webkit-text-size-adjust: 100%;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   /* 모션 최소화를 요청한 사용자에게는 키워드가 그냥 바뀌게 둔다. */
   @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
     .animate-ds-swap-in {
       animation: none;
     }
