@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
-import { HTTPError } from 'ky';
+import { AxiosError } from 'axios';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -9,8 +9,9 @@ export const queryClient = new QueryClient({
       gcTime: 5 * 60_000,
       refetchOnWindowFocus: false,
       retry: (failureCount, error) => {
-        // 4xx 는 재시도해도 결과가 같습니다.
-        if (error instanceof HTTPError && error.response.status < 500) return false;
+        // 4xx 는 재시도해도 결과가 같습니다. 401 은 apiClient 가 토큰 재발급으로 이미 처리합니다.
+        const status = error instanceof AxiosError ? error.response?.status : undefined;
+        if (status && status < 500) return false;
         return failureCount < 2;
       },
     },

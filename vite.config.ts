@@ -1,4 +1,3 @@
-/// <reference types="vitest/config" />
 import { fileURLToPath, URL } from 'node:url';
 
 import { defineConfig } from 'vite';
@@ -14,20 +13,7 @@ export default defineConfig({
     },
   },
   server: {
-    proxy: {
-      // 백엔드가 뜨면 여기만 바꾸면 됩니다. 브라우저에서는 /api 로만 호출.
-      '/api': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-      },
-    },
-  },
-  test: {
-    environment: 'jsdom',
-    // jsdom 에는 브라우저 fetch 가 없어 상대 URL 을 못 풉니다. 테스트에서만 절대 URL.
-    env: { VITE_API_BASE_URL: 'http://localhost/api/' },
-    globals: true,
-    setupFiles: ['./src/test/setup.ts'],
-    css: true,
+    // 5173 이 이미 쓰이는 환경을 위해 PORT 로 덮어쓸 수 있게 둡니다.
+    port: Number(process.env.PORT) || 5173,
   },
 });

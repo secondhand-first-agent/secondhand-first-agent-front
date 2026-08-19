@@ -1,13 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { queryFactory } from '@/queryFactory';
+import { getErrorMessage } from '@/api/response';
 import { ProductCard } from '@/features/products/components/ProductCard';
-import { productListQuery } from '@/features/products/hooks/product.queries';
 
 export function ProductListPage() {
-  const { data, isPending, isError, error } = useQuery(productListQuery());
+  const { data, isPending, isError, error } = useQuery(queryFactory.products.list());
 
   if (isPending) return <p className="text-gray-500">불러오는 중…</p>;
-  if (isError) return <p className="text-red-600">{error.message}</p>;
+  if (isError) return <p className="text-red-600">{getErrorMessage(error)}</p>;
 
   return (
     <section>

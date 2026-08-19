@@ -1,4 +1,4 @@
-import type { Product } from '../api/product.schema';
+import type { Product } from '@/api/products/product.schema';
 
 const statusLabel: Record<Product['status'], string> = {
   selling: '판매중',
