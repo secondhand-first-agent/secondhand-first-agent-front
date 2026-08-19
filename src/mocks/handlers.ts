@@ -38,6 +38,9 @@ const products: ProductList = {
 /** 실제 API 가 붙기 전까지 쓰는 임시 계정 */
 const registered = new Map<string, string>([['test@example.com', 'test1234']]);
 
+/** /users/me 가 누구를 돌려줄지 알기 위해 마지막 로그인 계정을 기억합니다. */
+let currentEmail: string | null = null;
+
 export const handlers = [
   http.get('*/products', () => HttpResponse.json(envelope(products))),
 
@@ -55,7 +58,17 @@ export const handlers = [
     if (registered.get(email) !== password) {
       return HttpResponse.json({ message: '이메일 또는 비밀번호가 올바르지 않습니다' }, { status: 401 });
     }
+    currentEmail = email;
     return HttpResponse.json(envelope({ accessToken: 'mock-access-token', tokenType: 'Bearer', userId: 'u1' }));
+  }),
+
+  http.get('*/users/me', () => {
+    if (!currentEmail) {
+      return HttpResponse.json({ message: '로그인이 필요합니다' }, { status: 401 });
+    }
+    return HttpResponse.json(
+      envelope({ id: 'u1', email: currentEmail, nickname: currentEmail.split('@')[0], profileImageUrl: null })
+    );
   }),
 
   http.post('*/users/token/refresh', () => HttpResponse.json(envelope({ accessToken: 'mock-refreshed-token' }))),

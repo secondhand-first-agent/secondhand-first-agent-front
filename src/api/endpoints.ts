@@ -7,6 +7,7 @@ export const ENDPOINTS = {
     signup: '/users/signup',
     login: '/users/login',
     refresh: '/users/token/refresh',
+    me: '/users/me',
   },
   products: {
     list: '/products',

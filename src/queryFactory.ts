@@ -1,5 +1,6 @@
 import { queryOptions } from '@tanstack/react-query';
 
+import { fetchMe } from '@/api/auth/auth.api';
 import { fetchProducts, type ProductListParams } from '@/api/products/product.api';
 
 /**
@@ -25,6 +26,13 @@ export const queryKeys = {
 } as const;
 
 export const queryFactory = {
+  auth: {
+    me: () =>
+      queryOptions({
+        queryKey: queryKeys.auth.me(),
+        queryFn: fetchMe,
+      }),
+  },
   products: {
     list: (params: ProductListParams = {}) =>
       queryOptions({
