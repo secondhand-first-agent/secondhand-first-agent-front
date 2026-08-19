@@ -17,8 +17,6 @@ export function AuthLayout() {
           </Link>
         </div>
       </header>
-      {/* 세로 가운데 정렬을 쓰면 에러 문구가 늘어날 때마다 전체가 다시 가운데로 밀립니다.
-          위에 고정해 두어야 제목이 제자리에 있습니다. */}
       <main className="mx-auto w-full max-w-sm flex-1 px-4 pt-16 pb-12">
         <Outlet />
       </main>

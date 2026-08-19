@@ -12,7 +12,6 @@ export const userStatsSchema = z.object({
   aiSearchCount: z.number().int().nonnegative(),
 });
 
-/** GET /users/me — 명세서의 응답 형태 그대로입니다. */
 export const meSchema = z.object({
   id: z.coerce.string(),
   name: z.string(),
@@ -23,7 +22,6 @@ export const meSchema = z.object({
   stats: userStatsSchema,
 });
 
-/** 아래 셋은 아직 명세가 없어 프론트가 임의로 정한 형태입니다. 확정되면 맞춰야 합니다. */
 export const recentSearchSchema = z.object({
   id: z.coerce.string(),
   keyword: z.string(),
@@ -33,6 +31,7 @@ export const recentSearchSchema = z.object({
 export const updateProfileSchema = z.object({
   name: z.string().min(1, '이름을 입력해주세요').max(20, '이름은 20자를 넘을 수 없습니다').optional(),
   regionId: z.string().optional(),
+  profileImageUrl: z.string().nullable().optional(),
 });
 
 export type Region = z.infer<typeof regionSchema>;

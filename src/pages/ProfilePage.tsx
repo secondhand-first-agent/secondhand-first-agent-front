@@ -8,7 +8,6 @@ import { ROUTES } from '@/app/routes';
 import { Avatar } from '@/components/Avatar';
 import { queryFactory } from '@/queryFactory';
 
-/** "2026-03-02" -> "2026.03 가입" */
 function formatJoinedAt(joinedAt: string) {
   const [year, month] = joinedAt.split('-');
   return `${year}.${month} 가입`;
@@ -54,7 +53,6 @@ export function ProfilePage() {
         </Link>
       </section>
 
-      {/* 찜한 매물(favoriteCount)은 아직 화면에 넣지 않습니다. */}
       <section className="grid gap-4 sm:grid-cols-2">
         <StatCard label="플랫폼 이동" value={`${me.stats.platformRedirectCount}회`} />
         <StatCard label="AI 검색 횟수" value={`${me.stats.aiSearchCount}회`} />

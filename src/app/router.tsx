@@ -4,31 +4,32 @@ import { AuthLayout } from './AuthLayout';
 import { RootLayout } from './RootLayout';
 import { ROUTES } from './routes';
 import { ComingSoonPage } from '@/pages/ComingSoonPage';
+import { BestDealPage } from '@/pages/BestDealPage';
 import { HomePage } from '@/pages/HomePage';
+import { HistoryPage } from '@/pages/HistoryPage';
+import { HowItWorksPage } from '@/pages/HowItWorksPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { ProductListPage } from '@/pages/ProductListPage';
+import { ProductDetailPage } from '@/pages/ProductDetailPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { SearchPage } from '@/pages/SearchPage';
 import { SignupPage } from '@/pages/SignupPage';
 
-/** 아직 화면이 없는 경로들. 만들어지는 대로 하나씩 빼면 됩니다. */
-const COMING_SOON = [
-  { path: ROUTES.bestDeal, title: 'Best Deal' },
-  { path: ROUTES.howItWorks, title: '이용 방법' },
-  { path: ROUTES.wishlist, title: '찜 목록' },
-  { path: ROUTES.history, title: '이동 내역' },
-];
+const COMING_SOON = [{ path: ROUTES.wishlist, title: '찜 목록' }];
 
 export const router = createBrowserRouter([
   {
-    // 헤더 · 푸터가 있는 일반 화면
     path: ROUTES.home,
     Component: RootLayout,
     children: [
       { index: true, Component: HomePage },
       { path: ROUTES.search, Component: SearchPage },
+      { path: ROUTES.bestDeal, Component: BestDealPage },
+      { path: ROUTES.history, Component: HistoryPage },
+      { path: ROUTES.howItWorks, Component: HowItWorksPage },
+      { path: ROUTES.productDetail, Component: ProductDetailPage },
       { path: ROUTES.products, Component: ProductListPage },
       { path: ROUTES.profile, Component: ProfilePage },
       { path: ROUTES.settings, Component: SettingsPage },
@@ -40,7 +41,6 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    // 네비게이션 없이 폼에만 집중하는 인증 화면
     Component: AuthLayout,
     children: [
       { path: ROUTES.login, Component: LoginPage },

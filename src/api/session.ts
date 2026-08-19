@@ -1,4 +1,3 @@
-/** apiClient 가 읽고 쓰는 localStorage 키. 다른 곳에서 직접 접근하지 않습니다. */
 const KEYS = {
   accessToken: 'accessToken',
   tokenType: 'tokenType',
@@ -11,10 +10,6 @@ export interface Session {
   userId?: string;
 }
 
-/**
- * 세션이 바뀌면 구독자에게 알립니다.
- * 헤더처럼 로그인 여부를 보여주는 화면이 localStorage 를 직접 폴링하지 않아도 되게 하려는 것입니다.
- */
 const listeners = new Set<() => void>();
 
 function emit() {

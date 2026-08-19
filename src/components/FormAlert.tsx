@@ -1,10 +1,5 @@
 import { TriangleAlert } from 'lucide-react';
 
-/**
- * 서버가 내려준 에러처럼 폼 전체에 해당하는 메시지.
- * 항상 마운트된 채로 grid row 높이만 0fr <-> 1fr 로 바뀝니다.
- * 갑자기 끼어들어 아래를 밀치는 대신 부드럽게 열리게 하려는 것입니다.
- */
 export function FormAlert({ message }: { message?: string }) {
   return (
     <div

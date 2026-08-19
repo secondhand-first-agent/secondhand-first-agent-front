@@ -9,7 +9,6 @@ export function useUpdateProfileMutation() {
   return useMutation({
     mutationFn: updateProfile,
     onSuccess: (me) => {
-      // 헤더 아바타까지 함께 갱신되도록 캐시를 바로 채웁니다.
       queryClient.setQueryData(queryKeys.users.me(), me);
     },
   });

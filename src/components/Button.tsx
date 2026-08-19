@@ -19,7 +19,6 @@ export function Button({ isLoading = false, disabled, children, className = '', 
       ].join(' ')}
       {...props}
     >
-      {/* 스피너를 흐름에서 빼서 라벨 위치가 고정되게 합니다 */}
       {isLoading ? <LoaderCircle className="absolute left-4 size-4 animate-spin" aria-hidden /> : null}
       {children}
     </button>

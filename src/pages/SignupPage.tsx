@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router';
+import { useState } from 'react';
 
 import { getErrorMessage } from '@/api/response';
 import { ROUTES } from '@/app/routes';
@@ -10,11 +11,13 @@ import { useSignupMutation } from '@/hooks/useAuthMutations';
 import { Button } from '@/components/Button';
 import { FormAlert } from '@/components/FormAlert';
 import { PasswordField } from '@/components/PasswordField';
+import { ProfileImagePicker } from '@/components/ProfileImagePicker';
 import { TextField } from '@/components/TextField';
 
 export function SignupPage() {
   const navigate = useNavigate();
   const signupMutation = useSignupMutation();
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -28,17 +31,31 @@ export function SignupPage() {
   const password = useWatch({ control, name: 'password' }) ?? '';
 
   const onSubmit = handleSubmit(({ email, password }) => {
-    // passwordConfirm 은 화면에서만 쓰고 서버로는 보내지 않습니다.
-    signupMutation.mutate({ email, password }, { onSuccess: () => navigate(ROUTES.login, { replace: true }) });
+    signupMutation.mutate(
+      { email, password, profileImageUrl },
+      { onSuccess: () => navigate(ROUTES.login, { replace: true }) }
+    );
   });
 
   return (
     <div>
       <h1 className="text-2xl font-bold tracking-tight text-gray-900">회원가입</h1>
-      <p className="mt-2 text-sm text-gray-600">이메일과 비밀번호만 있으면 시작할 수 있습니다.</p>
+      <p className="mt-2 text-sm text-gray-600">
+        이메일과 비밀번호로 시작하고, 프로필 사진은 선택해서 추가할 수 있어요.
+      </p>
 
       <form onSubmit={onSubmit} noValidate className="mt-8 space-y-1.5">
         <FormAlert message={signupMutation.isError ? getErrorMessage(signupMutation.error) : undefined} />
+
+        <div className="mb-5 rounded-xl border border-gray-200 bg-white p-4">
+          <p className="mb-3 text-sm font-semibold text-gray-900">프로필 사진</p>
+          <ProfileImagePicker
+            name="내 프로필"
+            value={profileImageUrl}
+            onChange={setProfileImageUrl}
+            disabled={signupMutation.isPending}
+          />
+        </div>
 
         <TextField
           label="이메일"
@@ -49,7 +66,6 @@ export function SignupPage() {
           {...register('email')}
         />
 
-        {/* 규칙 목록이 위 비밀번호 필드 설명으로 읽히도록, 아래 필드와는 간격을 둡니다 */}
         <div className="mb-3">
           <PasswordField
             label="비밀번호"

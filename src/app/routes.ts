@@ -1,4 +1,3 @@
-/** 라우트 경로는 항상 여기서 가져옵니다. 문자열을 화면에 직접 쓰지 않습니다. */
 export const ROUTES = {
   home: '/',
   search: '/search',
@@ -9,8 +8,13 @@ export const ROUTES = {
   history: '/history',
   settings: '/settings',
   products: '/products',
+  productDetail: '/products/:productId',
   login: '/login',
   signup: '/signup',
 } as const;
+
+export function productDetailPath(productId: string) {
+  return `${ROUTES.products}/${encodeURIComponent(productId)}`;
+}
 
 export type RoutePath = (typeof ROUTES)[keyof typeof ROUTES];

@@ -6,8 +6,8 @@ import { Link, useNavigate } from 'react-router';
 import { clearSession } from '@/api/session';
 import { getErrorMessage } from '@/api/response';
 import { ROUTES } from '@/app/routes';
-import { Avatar } from '@/components/Avatar';
 import { FormAlert } from '@/components/FormAlert';
+import { ProfileImagePicker } from '@/components/ProfileImagePicker';
 import { SettingRow } from '@/components/SettingRow';
 import { useUpdateProfileMutation, useWithdrawMutation } from '@/hooks/useUserMutations';
 import { queryFactory } from '@/queryFactory';
@@ -84,15 +84,16 @@ export function SettingsPage() {
 
       <SectionTitle>프로필</SectionTitle>
       <section className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
-        <SettingRow
-          label="프로필 사진"
-          description="다른 사용자에게 보여지는 이미지예요"
-          leading={<Avatar name={me.name} imageUrl={me.profileImageUrl} className="size-11" />}
-          action={
-            // 이미지 업로드 API 가 아직 없습니다.
-            <span className="shrink-0 px-1 text-sm text-gray-300">준비 중</span>
-          }
-        />
+        <SettingRow label="프로필 사진" description="다른 사용자에게 보여지는 이미지예요">
+          <div className="mt-3">
+            <ProfileImagePicker
+              name={me.name}
+              value={me.profileImageUrl}
+              onChange={(profileImageUrl) => updateProfile.mutate({ profileImageUrl })}
+              disabled={updateProfile.isPending}
+            />
+          </div>
+        </SettingRow>
 
         <SettingRow
           label="이름"
@@ -183,7 +184,6 @@ export function SettingsPage() {
 
       <SectionTitle>계정</SectionTitle>
       <section className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
-        {/* 이메일 · 비밀번호 변경은 인증 절차가 필요해 명세가 나온 뒤에 붙입니다. */}
         <SettingRow
           label="이메일"
           description={me.email}

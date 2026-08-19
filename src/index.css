@@ -3,7 +3,6 @@
 @theme {
   --font-sans: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
 
-  /* 중고 시장 강조색. text-brand / bg-brand 로 씁니다. */
   --color-brand: #10b981;
   --color-brand-dark: #059669;
 }

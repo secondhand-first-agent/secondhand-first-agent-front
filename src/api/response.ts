@@ -3,7 +3,6 @@ import { z } from 'zod';
 
 const envelopeSchema = z.object({ data: z.unknown() });
 
-/** 서버는 실제 데이터를 `{ data: ... }` 로 감싸서 내려줍니다. 봉투를 벗기고 안쪽을 검증합니다. */
 export function unwrap<T>(schema: z.ZodType<T>, payload: unknown): T {
   const { data } = envelopeSchema.parse(payload);
   return schema.parse(data);
@@ -11,7 +10,6 @@ export function unwrap<T>(schema: z.ZodType<T>, payload: unknown): T {
 
 const FALLBACK_MESSAGE = '문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
 
-/** 화면에 그대로 띄울 수 있는 에러 메시지로 정규화합니다. */
 export function getErrorMessage(error: unknown): string {
   if (error instanceof AxiosError) {
     const body = error.response?.data as { message?: string } | undefined;

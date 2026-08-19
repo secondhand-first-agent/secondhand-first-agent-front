@@ -11,7 +11,6 @@ import {
   type SignupRequest,
 } from './auth.schema';
 
-/** 이메일 인증번호 단계는 아직 없습니다. */
 export async function signup(body: SignupRequest): Promise<AuthUser> {
   const { data } = await apiClient.post(ENDPOINTS.auth.signup, body);
   return unwrap(authUserSchema, data);
