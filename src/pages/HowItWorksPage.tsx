@@ -45,15 +45,15 @@ const TIPS = [
 export function HowItWorksPage() {
   return (
     <div>
-      <section className="border-b border-gray-100 bg-white">
+      <section className="border-ds-border bg-ds-surface border-b">
         <div className="mx-auto max-w-5xl px-4 pt-14 pb-16 text-center sm:pt-20 sm:pb-20">
-          <p className="text-brand text-xs font-semibold tracking-[0.18em] uppercase">How it works</p>
-          <h1 className="mt-4 text-3xl leading-tight font-bold tracking-tight text-gray-900 sm:text-5xl sm:leading-tight">
+          <p className="text-ds-brand text-ds-body-sm font-ds-semibold tracking-[0.18em] uppercase">How it works</p>
+          <h1 className="text-ds-h-xl font-ds-bold text-ds-text sm:text-ds-h-2xl mt-4 leading-tight sm:leading-tight">
             새것을 사기 전에,
             <br />
-            <span className="text-brand">중고 시장부터</span> 확인해 보세요
+            <span className="text-ds-brand">중고 시장부터</span> 확인해 보세요
           </h1>
-          <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-gray-500 sm:text-base">
+          <p className="text-ds-body text-ds-text-subtle sm:text-ds-body-lg mx-auto mt-5 max-w-xl leading-7">
             여러 플랫폼을 일일이 찾아보지 않아도 괜찮아요.
             <br className="hidden sm:block" />
             원하는 조건을 말하면 가장 좋은 선택지를 함께 찾아드릴게요.
@@ -63,14 +63,14 @@ export function HowItWorksPage() {
             {STEPS.map(({ number, icon: Icon, title }, index) => (
               <div key={number} className="flex w-full items-center sm:flex-1">
                 <div className="flex min-w-0 flex-1 flex-col items-center">
-                  <span className="bg-brand/10 text-brand flex size-12 items-center justify-center rounded-2xl">
+                  <span className="bg-ds-brand-subtlest text-ds-brand rounded-ds-lg flex size-12 items-center justify-center">
                     <Icon className="size-5" strokeWidth={1.8} aria-hidden />
                   </span>
-                  <span className="mt-3 text-xs font-medium text-gray-400">{number}</span>
-                  <span className="mt-1 text-sm font-semibold text-gray-900">{title}</span>
+                  <span className="text-ds-body-sm font-ds-medium text-ds-text-subtlest mt-3">{number}</span>
+                  <span className="text-ds-body font-ds-semibold text-ds-text mt-1">{title}</span>
                 </div>
                 {index < STEPS.length - 1 ? (
-                  <ArrowRight className="hidden size-4 shrink-0 text-gray-300 sm:block" aria-hidden />
+                  <ArrowRight className="text-ds-text-subtlest hidden size-4 shrink-0 sm:block" aria-hidden />
                 ) : null}
               </div>
             ))}
@@ -80,8 +80,8 @@ export function HowItWorksPage() {
 
       <section className="mx-auto max-w-6xl px-4 py-14 sm:py-20" aria-labelledby="steps-heading">
         <div className="text-center">
-          <p className="text-brand text-sm font-semibold">이렇게 이용해 보세요</p>
-          <h2 id="steps-heading" className="mt-2 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+          <p className="text-ds-brand text-ds-body font-ds-semibold">이렇게 이용해 보세요</p>
+          <h2 id="steps-heading" className="text-ds-h-lg font-ds-bold text-ds-text sm:text-ds-h-xl mt-2">
             복잡한 검색은 AI에게 맡기고
             <br className="sm:hidden" /> 결과만 비교하세요
           </h2>
@@ -89,17 +89,20 @@ export function HowItWorksPage() {
 
         <div className="mt-10 grid gap-4 md:grid-cols-3">
           {STEPS.map(({ number, icon: Icon, title, description, example }) => (
-            <article key={number} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-7">
+            <article
+              key={number}
+              className="rounded-ds-lg border-ds-border bg-ds-surface shadow-ds-raised border p-6 sm:p-7"
+            >
               <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-gray-300">{number}</span>
-                <span className="bg-brand/10 text-brand flex size-10 items-center justify-center rounded-xl">
+                <span className="text-ds-body font-ds-bold text-ds-text-subtlest">{number}</span>
+                <span className="bg-ds-brand-subtlest text-ds-brand rounded-ds-lg flex size-10 items-center justify-center">
                   <Icon className="size-5" strokeWidth={1.8} aria-hidden />
                 </span>
               </div>
-              <h3 className="mt-7 text-lg font-bold text-gray-900">{title}</h3>
-              <p className="mt-3 min-h-20 text-sm leading-6 text-gray-500">{description}</p>
-              <div className="mt-6 rounded-xl bg-gray-50 px-4 py-3.5 text-xs leading-5 text-gray-600">
-                <span className="text-brand mr-1.5 font-semibold">예시</span>
+              <h3 className="text-ds-h-sm font-ds-bold text-ds-text mt-7">{title}</h3>
+              <p className="text-ds-body text-ds-text-subtle mt-3 min-h-20 leading-6">{description}</p>
+              <div className="rounded-ds-lg bg-ds-surface-sunken text-ds-body-sm text-ds-text-subtle mt-6 px-4 py-3.5 leading-5">
+                <span className="text-ds-brand font-ds-semibold mr-1.5">예시</span>
                 {example}
               </div>
             </article>
@@ -107,40 +110,40 @@ export function HowItWorksPage() {
         </div>
       </section>
 
-      <section className="bg-gray-900" aria-labelledby="conversation-heading">
+      <section className="bg-ds-neutral-bold" aria-labelledby="conversation-heading">
         <div className="mx-auto grid max-w-5xl gap-10 px-4 py-14 sm:py-20 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
           <div>
-            <p className="text-sm font-semibold text-emerald-400">대화하듯 검색하세요</p>
+            <p className="text-ds-body font-ds-semibold text-ds-success-border">대화하듯 검색하세요</p>
             <h2
               id="conversation-heading"
-              className="mt-3 text-2xl leading-tight font-bold tracking-tight text-white sm:text-3xl"
+              className="text-ds-h-lg font-ds-bold text-ds-text-inverse sm:text-ds-h-xl mt-3 leading-tight"
             >
               검색어를 잘 써야 한다는
               <br />
               부담은 내려놓으세요
             </h2>
-            <p className="mt-5 text-sm leading-7 text-gray-400">
+            <p className="text-ds-body text-ds-text-subtlest mt-5 leading-7">
               원하는 물건과 조건을 평소 말투로 적어 주세요. 결과를 받은 뒤에는 더 좋은 조건이 있는지 이어서 물어볼 수
               있어요.
             </p>
           </div>
 
-          <div className="rounded-2xl bg-white p-4 shadow-2xl sm:p-5">
-            <div className="flex items-center gap-2 border-b border-gray-100 px-2 pb-4">
-              <span className="bg-brand flex size-8 items-center justify-center rounded-full text-white">
+          <div className="rounded-ds-lg bg-ds-surface shadow-ds-overlay p-4 sm:p-5">
+            <div className="border-ds-border flex items-center gap-2 border-b px-2 pb-4">
+              <span className="bg-ds-brand text-ds-text-inverse flex size-8 items-center justify-center rounded-full">
                 <Sparkles className="size-4" aria-hidden />
               </span>
               <div>
-                <p className="text-sm font-semibold text-gray-900">Secondhand First</p>
-                <p className="text-xs text-gray-400">중고 딜 어시스턴트</p>
+                <p className="text-ds-body font-ds-semibold text-ds-text">Secondhand First</p>
+                <p className="text-ds-body-sm text-ds-text-subtlest">중고 딜 어시스턴트</p>
               </div>
             </div>
 
             <div className="space-y-3 px-2 py-5">
-              <div className="ml-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-gray-100 px-4 py-3 text-sm leading-6 text-gray-700">
+              <div className="rounded-ds-lg bg-ds-surface-hovered text-ds-body text-ds-text-subtle ml-auto max-w-[85%] rounded-tr-sm px-4 py-3 leading-6">
                 30만원으로 에어팟 프로 사고 싶어. 중고 괜찮아.
               </div>
-              <div className="max-w-[92%] rounded-2xl rounded-tl-sm bg-emerald-50 px-4 py-3.5 text-sm leading-6 text-gray-700">
+              <div className="rounded-ds-lg bg-ds-success-bg text-ds-body text-ds-text-subtle max-w-[92%] rounded-tl-sm px-4 py-3.5 leading-6">
                 <p>예산에 맞는 매물 3개를 찾았어요.</p>
                 <div className="mt-3 space-y-2">
                   {[
@@ -148,19 +151,24 @@ export function HowItWorksPage() {
                     '에어팟 프로 2 USB-C · 230,000원',
                     '에어팟 프로 2 미개봉 · 295,000원',
                   ].map((item, index) => (
-                    <div key={item} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2.5 text-xs">
-                      <span className="bg-brand flex size-4 shrink-0 items-center justify-center rounded-full text-white">
+                    <div
+                      key={item}
+                      className="rounded-ds-md bg-ds-surface text-ds-body-sm flex items-center gap-2 px-3 py-2.5"
+                    >
+                      <span className="bg-ds-brand text-ds-text-inverse flex size-4 shrink-0 items-center justify-center rounded-full">
                         <Check className="size-2.5" strokeWidth={3} aria-hidden />
                       </span>
-                      <span className="text-gray-700">{item}</span>
-                      {index === 0 ? <span className="text-brand ml-auto shrink-0 font-semibold">추천</span> : null}
+                      <span className="text-ds-text-subtle">{item}</span>
+                      {index === 0 ? (
+                        <span className="text-ds-brand font-ds-semibold ml-auto shrink-0">추천</span>
+                      ) : null}
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-2.5 text-xs text-gray-400">
+            <div className="rounded-ds-lg border-ds-border text-ds-body-sm text-ds-text-subtlest flex items-center gap-2 border px-3 py-2.5">
               <Search className="size-3.5" aria-hidden />
               <span>궁금한 조건을 더 물어보세요</span>
             </div>
@@ -171,36 +179,38 @@ export function HowItWorksPage() {
       <section className="mx-auto max-w-5xl px-4 py-14 sm:py-20" aria-labelledby="tips-heading">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-brand text-sm font-semibold">더 좋은 결과를 위한 팁</p>
-            <h2 id="tips-heading" className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
+            <p className="text-ds-brand text-ds-body font-ds-semibold">더 좋은 결과를 위한 팁</p>
+            <h2 id="tips-heading" className="text-ds-h-lg font-ds-bold text-ds-text mt-2">
               이런 정보를 함께 알려주면 좋아요
             </h2>
           </div>
-          <p className="text-sm text-gray-400">처음부터 완벽하게 적지 않아도 괜찮아요.</p>
+          <p className="text-ds-body text-ds-text-subtlest">처음부터 완벽하게 적지 않아도 괜찮아요.</p>
         </div>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
           {TIPS.map(({ title, description }) => (
-            <article key={title} className="rounded-xl border border-gray-200 bg-white p-5">
-              <div className="bg-brand/10 text-brand flex size-7 items-center justify-center rounded-full">
+            <article key={title} className="rounded-ds-lg border-ds-border bg-ds-surface border p-5">
+              <div className="bg-ds-brand-subtlest text-ds-brand flex size-7 items-center justify-center rounded-full">
                 <Check className="size-4" strokeWidth={2.5} aria-hidden />
               </div>
-              <h3 className="mt-4 text-sm font-bold text-gray-900">{title}</h3>
-              <p className="mt-2 text-sm leading-6 text-gray-500">{description}</p>
+              <h3 className="text-ds-body font-ds-bold text-ds-text mt-4">{title}</h3>
+              <p className="text-ds-body text-ds-text-subtle mt-2 leading-6">{description}</p>
             </article>
           ))}
         </div>
       </section>
 
       <section className="px-4 pb-16 sm:pb-20">
-        <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-6 rounded-2xl bg-emerald-50 px-6 py-8 sm:flex-row sm:items-center sm:px-10">
+        <div className="rounded-ds-lg bg-ds-success-bg mx-auto flex max-w-5xl flex-col items-start justify-between gap-6 px-6 py-8 sm:flex-row sm:items-center sm:px-10">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">찾고 있던 물건, 지금 물어보세요</h2>
-            <p className="mt-2 text-sm text-gray-500">새것을 사기 전, 중고 시장에서 더 좋은 딜을 찾아볼 수 있어요.</p>
+            <h2 className="text-ds-h-md font-ds-bold text-ds-text">찾고 있던 물건, 지금 물어보세요</h2>
+            <p className="text-ds-body text-ds-text-subtle mt-2">
+              새것을 사기 전, 중고 시장에서 더 좋은 딜을 찾아볼 수 있어요.
+            </p>
           </div>
           <Link
             to={ROUTES.home}
-            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-gray-900 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-700"
+            className="bg-ds-neutral-bold text-ds-body font-ds-medium text-ds-text-inverse hover:bg-ds-neutral-bold-hovered inline-flex shrink-0 items-center gap-2 rounded-full px-5 py-3 transition-colors"
           >
             검색 시작하기
             <ArrowRight className="size-4" aria-hidden />

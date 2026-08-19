@@ -30,9 +30,9 @@ export function LoginPage() {
   });
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold tracking-tight text-gray-900">로그인</h1>
-      <p className="mt-2 text-sm text-gray-600">이메일과 비밀번호를 입력해주세요.</p>
+    <div className="font-ds">
+      <h1 className="text-ds-text text-ds-h-lg font-ds-bold">로그인</h1>
+      <p className="text-ds-text-subtle text-ds-body mt-2">이메일과 비밀번호를 입력해주세요.</p>
 
       <form onSubmit={onSubmit} noValidate className="mt-8 space-y-1.5">
         <FormAlert message={loginMutation.isError ? getErrorMessage(loginMutation.error) : undefined} />
@@ -58,9 +58,12 @@ export function LoginPage() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="text-ds-text-subtle text-ds-body mt-6 text-center">
         아직 계정이 없으신가요?{' '}
-        <Link to={ROUTES.signup} className="font-medium text-gray-900 underline underline-offset-4 hover:text-gray-700">
+        <Link
+          to={ROUTES.signup}
+          className="text-ds-brand-text hover:text-ds-brand-pressed font-ds-medium underline underline-offset-4"
+        >
           회원가입
         </Link>
       </p>

@@ -23,7 +23,7 @@ export function PasswordField({ label, error, ...props }: PasswordFieldProps) {
           type="button"
           onClick={() => setVisible((prev) => !prev)}
           aria-label={visible ? '비밀번호 숨기기' : '비밀번호 표시'}
-          className="rounded p-1.5 text-gray-400 hover:text-gray-700 focus:ring-1 focus:ring-gray-900 focus:outline-none"
+          className="text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text rounded-ds-xs focus-visible:outline-ds-border-focused flex size-6 items-center justify-center transition-colors focus-visible:outline-2"
         >
           <Icon className="size-4" aria-hidden />
         </button>

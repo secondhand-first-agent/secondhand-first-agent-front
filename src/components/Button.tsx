@@ -11,15 +11,15 @@ export function Button({ isLoading = false, disabled, children, className = '', 
       disabled={disabled || isLoading}
       aria-busy={isLoading || undefined}
       className={[
-        'relative inline-flex w-full items-center justify-center rounded-md bg-gray-900 px-4 py-2.5',
-        'text-sm font-medium text-white transition-colors',
-        'hover:bg-gray-700 focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 focus:outline-none',
-        'disabled:cursor-not-allowed disabled:bg-gray-300',
+        'font-ds bg-ds-brand hover:bg-ds-brand-hovered active:bg-ds-brand-pressed relative inline-flex h-8 w-full items-center justify-center px-3',
+        'rounded-ds-sm text-ds-body font-ds-medium text-ds-text-inverse transition-colors',
+        'focus-visible:outline-ds-border-focused focus-visible:outline-2 focus-visible:outline-offset-2',
+        'disabled:bg-ds-neutral disabled:text-ds-text-disabled disabled:cursor-not-allowed',
         className,
       ].join(' ')}
       {...props}
     >
-      {isLoading ? <LoaderCircle className="absolute left-4 size-4 animate-spin" aria-hidden /> : null}
+      {isLoading ? <LoaderCircle className="absolute left-3 size-4 animate-spin" aria-hidden /> : null}
       {children}
     </button>
   );

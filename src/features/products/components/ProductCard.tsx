@@ -8,10 +8,10 @@ const statusLabel: Record<Product['status'], string> = {
 
 export function ProductCard({ product }: { product: Product }) {
   return (
-    <article className="rounded-lg border border-gray-200 p-4 transition-colors hover:border-gray-400">
-      <h3 className="truncate font-medium">{product.title}</h3>
-      <p className="mt-1 text-lg font-semibold">{product.price.toLocaleString('ko-KR')}원</p>
-      <span className="mt-2 inline-block rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+    <article className="font-ds border-ds-border bg-ds-surface rounded-ds-lg hover:bg-ds-surface-hovered border p-4 transition-colors">
+      <h3 className="text-ds-text text-ds-body font-ds-medium truncate">{product.title}</h3>
+      <p className="text-ds-text text-ds-h-sm font-ds-bold mt-1">{product.price.toLocaleString('ko-KR')}원</p>
+      <span className="bg-ds-accent-gray-bg text-ds-accent-gray-text rounded-ds-xs text-ds-body-sm font-ds-bold mt-2 inline-block px-1.5 py-0.5">
         {statusLabel[product.status]}
       </span>
     </article>

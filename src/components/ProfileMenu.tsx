@@ -54,7 +54,7 @@ export function ProfileMenu() {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="내 프로필 메뉴"
-        className="block rounded-full focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 focus:outline-none"
+        className="focus-visible:outline-ds-border-focused block rounded-full focus-visible:outline-2 focus-visible:outline-offset-2"
       >
         <Avatar name={displayName} imageUrl={me?.profileImageUrl} />
       </button>
@@ -62,11 +62,11 @@ export function ProfileMenu() {
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 z-20 mt-2 w-56 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-lg"
+          className="font-ds border-ds-border bg-ds-surface shadow-ds-overlay rounded-ds-sm absolute right-0 z-20 mt-1 w-56 overflow-hidden border py-1"
         >
-          <div className="border-b border-gray-100 px-4 py-3">
-            <p className="truncate text-sm font-semibold text-gray-900">{displayName}</p>
-            <p className="mt-0.5 truncate text-xs text-gray-500">{me?.email}</p>
+          <div className="border-ds-border border-b px-3 py-2.5">
+            <p className="text-ds-text text-ds-body font-ds-semibold truncate">{displayName}</p>
+            <p className="text-ds-text-subtle text-ds-body-sm mt-0.5 truncate">{me?.email}</p>
           </div>
 
           <div className="py-1">
@@ -76,19 +76,19 @@ export function ProfileMenu() {
                 to={item.to}
                 role="menuitem"
                 onClick={() => setOpen(false)}
-                className="block px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                className="text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text text-ds-body block px-3 py-1.5 transition-colors"
               >
                 {item.label}
               </Link>
             ))}
           </div>
 
-          <div className="border-t border-gray-100 py-1">
+          <div className="border-ds-border border-t py-1">
             <button
               type="button"
               role="menuitem"
               onClick={onLogout}
-              className="block w-full px-4 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50"
+              className="text-ds-danger-text hover:bg-ds-danger-bg text-ds-body block w-full px-3 py-1.5 text-left transition-colors"
             >
               로그아웃
             </button>

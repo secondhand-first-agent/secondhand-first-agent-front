@@ -38,17 +38,17 @@ export function SignupPage() {
   });
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold tracking-tight text-gray-900">회원가입</h1>
-      <p className="mt-2 text-sm text-gray-600">
+    <div className="font-ds">
+      <h1 className="text-ds-text text-ds-h-lg font-ds-bold">회원가입</h1>
+      <p className="text-ds-text-subtle text-ds-body mt-2">
         이메일과 비밀번호로 시작하고, 프로필 사진은 선택해서 추가할 수 있어요.
       </p>
 
       <form onSubmit={onSubmit} noValidate className="mt-8 space-y-1.5">
         <FormAlert message={signupMutation.isError ? getErrorMessage(signupMutation.error) : undefined} />
 
-        <div className="mb-5 rounded-xl border border-gray-200 bg-white p-4">
-          <p className="mb-3 text-sm font-semibold text-gray-900">프로필 사진</p>
+        <div className="border-ds-border bg-ds-surface rounded-ds-lg mb-4 border p-4">
+          <p className="text-ds-text text-ds-body font-ds-semibold mb-3">프로필 사진</p>
           <ProfileImagePicker
             name="내 프로필"
             value={profileImageUrl}
@@ -88,9 +88,12 @@ export function SignupPage() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="text-ds-text-subtle text-ds-body mt-6 text-center">
         이미 계정이 있으신가요?{' '}
-        <Link to={ROUTES.login} className="font-medium text-gray-900 underline underline-offset-4 hover:text-gray-700">
+        <Link
+          to={ROUTES.login}
+          className="text-ds-brand-text hover:text-ds-brand-pressed font-ds-medium underline underline-offset-4"
+        >
           로그인
         </Link>
       </p>

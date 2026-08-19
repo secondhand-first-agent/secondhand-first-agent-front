@@ -26,12 +26,12 @@ const FILTERS: { value: HistoryFilter; label: string }[] = [
 ];
 
 const PLATFORM_META: Record<ActivityPlatform, { label: string; badge: string }> = {
-  DAANGN: { label: '당근마켓', badge: 'bg-orange-50 text-orange-600' },
-  BUNGJANG: { label: '번개장터', badge: 'bg-yellow-50 text-yellow-700' },
-  JOONGGONARA: { label: '중고나라', badge: 'bg-rose-50 text-rose-500' },
+  DAANGN: { label: '당근마켓', badge: 'bg-ds-accent-orange-bg text-ds-accent-orange-text' },
+  BUNGJANG: { label: '번개장터', badge: 'bg-ds-accent-yellow-bg text-ds-accent-yellow-text' },
+  JOONGGONARA: { label: '중고나라', badge: 'bg-ds-danger-bg text-ds-danger-text' },
 };
 
-const THUMBNAIL_STYLES = ['bg-emerald-50', 'bg-sky-50', 'bg-amber-50'];
+const THUMBNAIL_STYLES = ['bg-ds-success-bg', 'bg-ds-info-bg', 'bg-ds-warning-bg'];
 
 function formatPrice(price: number) {
   return `₩${price.toLocaleString('ko-KR')}`;
@@ -92,12 +92,12 @@ function HistoryThumbnail({ history, index }: { history: RedirectHistory; index:
 
   return (
     <div
-      className={`flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl ${THUMBNAIL_STYLES[index % THUMBNAIL_STYLES.length]}`}
+      className={`rounded-ds-lg flex size-24 shrink-0 items-center justify-center overflow-hidden ${THUMBNAIL_STYLES[index % THUMBNAIL_STYLES.length]}`}
     >
       {history.thumbnailUrl ? (
         <img src={history.thumbnailUrl} alt="" className="size-full object-cover" />
       ) : (
-        <Icon className="size-12 text-gray-500/70" strokeWidth={1.25} aria-hidden />
+        <Icon className="text-ds-text-subtlest size-12" strokeWidth={1.25} aria-hidden />
       )}
     </div>
   );
@@ -106,21 +106,21 @@ function HistoryThumbnail({ history, index }: { history: RedirectHistory; index:
 function PlatformBadge({ platform }: { platform: ActivityPlatform }) {
   const meta = PLATFORM_META[platform];
 
-  return <span className={`rounded-md px-2.5 py-1 text-xs font-bold ${meta.badge}`}>{meta.label}</span>;
+  return <span className={`rounded-ds-sm text-ds-body-sm font-ds-bold px-2.5 py-1 ${meta.badge}`}>{meta.label}</span>;
 }
 
 function HistoryCard({ history, index }: { history: RedirectHistory; index: number }) {
   return (
-    <article className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white px-5 py-5 transition-colors hover:border-gray-300 sm:gap-6 sm:px-6">
+    <article className="rounded-ds-lg border-ds-border bg-ds-surface hover:border-ds-border flex items-center gap-4 border px-5 py-5 transition-colors sm:gap-6 sm:px-6">
       <HistoryThumbnail history={history} index={index} />
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <PlatformBadge platform={history.platform} />
-          <span className="text-sm text-gray-400">{formatTime(history.redirectedAt)}</span>
+          <span className="text-ds-body text-ds-text-subtlest">{formatTime(history.redirectedAt)}</span>
         </div>
-        <h3 className="mt-2 truncate text-base font-bold text-gray-900 sm:text-lg">{history.title}</h3>
-        <p className="mt-1 text-sm text-gray-400 sm:text-base">
+        <h3 className="text-ds-body-lg font-ds-bold text-ds-text sm:text-ds-h-sm mt-2 truncate">{history.title}</h3>
+        <p className="text-ds-body text-ds-text-subtlest sm:text-ds-body-lg mt-1">
           {formatPrice(history.price)} <span aria-hidden>·</span> 이동 시점 가격
         </p>
       </div>
@@ -129,7 +129,7 @@ function HistoryCard({ history, index }: { history: RedirectHistory; index: numb
         href={history.platformUrl}
         target="_blank"
         rel="noreferrer"
-        className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-gray-500 transition-colors hover:text-gray-900 sm:text-base"
+        className="text-ds-body font-ds-semibold text-ds-text-subtle hover:text-ds-text sm:text-ds-body-lg inline-flex shrink-0 items-center gap-1 transition-colors"
       >
         다시 보기
         <ChevronRight className="size-5" aria-hidden />
@@ -144,13 +144,13 @@ function HistorySkeleton() {
       {[0, 1, 2].map((item) => (
         <div
           key={item}
-          className="flex animate-pulse items-center gap-4 rounded-2xl border border-gray-200 bg-white px-5 py-5 sm:px-6"
+          className="rounded-ds-lg border-ds-border bg-ds-surface flex animate-pulse items-center gap-4 border px-5 py-5 sm:px-6"
         >
-          <div className="size-24 shrink-0 rounded-2xl bg-gray-100" />
+          <div className="rounded-ds-lg bg-ds-surface-hovered size-24 shrink-0" />
           <div className="min-w-0 flex-1 space-y-3">
-            <div className="h-5 w-24 rounded bg-gray-100" />
-            <div className="h-5 w-56 max-w-full rounded bg-gray-100" />
-            <div className="h-4 w-36 rounded bg-gray-100" />
+            <div className="bg-ds-surface-hovered h-5 w-24 rounded" />
+            <div className="bg-ds-surface-hovered h-5 w-56 max-w-full rounded" />
+            <div className="bg-ds-surface-hovered h-4 w-36 rounded" />
           </div>
         </div>
       ))}
@@ -182,14 +182,14 @@ export function HistoryPage() {
     <section className="bg-[#f8fafc] px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
       <div className="mx-auto max-w-6xl">
         <header>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">이동 내역</h1>
-          <p className="mt-3 text-base leading-7 text-gray-500 sm:text-lg">
+          <h1 className="text-ds-h-xl font-ds-bold text-ds-text sm:text-ds-h-2xl">이동 내역</h1>
+          <p className="text-ds-body-lg text-ds-text-subtle sm:text-ds-h-sm mt-3 leading-7">
             “상품 보기”를 눌러 원 플랫폼으로 이동했던 매물 기록이에요. 실제 거래 완료 여부는 각 플랫폼에서 확인해주세요.
           </p>
         </header>
 
-        <div className="mt-7 flex items-start gap-3 rounded-2xl bg-slate-100 px-5 py-4 text-sm leading-6 text-gray-500 sm:px-6 sm:text-base">
-          <Info className="mt-0.5 size-5 shrink-0 text-slate-500" aria-hidden />
+        <div className="rounded-ds-lg bg-ds-surface-hovered text-ds-body text-ds-text-subtle sm:text-ds-body-lg mt-7 flex items-start gap-3 px-5 py-4 leading-6 sm:px-6">
+          <Info className="text-ds-text-subtle mt-0.5 size-5 shrink-0" aria-hidden />
           <p className="min-w-0">
             Secondhand First는 매물 탐색과 비교만 도와드려요. 채팅, 결제, 거래는 당근마켓·번개장터·중고나라 등 각
             플랫폼에서 직접 진행돼요.
@@ -208,7 +208,7 @@ export function HistoryPage() {
                 role="tab"
                 aria-selected={selected}
                 onClick={() => setFilter(item.value)}
-                className={`rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors sm:text-base ${selected ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-200 bg-white text-gray-500 hover:border-gray-400 hover:text-gray-900'}`}
+                className={`text-ds-body font-ds-semibold sm:text-ds-body-lg rounded-ds-sm border px-3 py-1.5 transition-colors ${selected ? 'border-ds-brand bg-ds-brand-subtlest text-ds-brand-text' : 'border-ds-border bg-ds-surface text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text'}`}
               >
                 {item.label}
                 {countLabel}
@@ -221,13 +221,13 @@ export function HistoryPage() {
           {isPending ? <HistorySkeleton /> : null}
 
           {isError ? (
-            <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-14 text-center">
-              <p className="font-semibold text-gray-900">이동 내역을 불러오지 못했어요.</p>
-              <p className="mt-2 text-sm text-gray-500">{getErrorMessage(error)}</p>
+            <div className="rounded-ds-lg border-ds-border bg-ds-surface border border-dashed px-6 py-14 text-center">
+              <p className="font-ds-semibold text-ds-text">이동 내역을 불러오지 못했어요.</p>
+              <p className="text-ds-body text-ds-text-subtle mt-2">{getErrorMessage(error)}</p>
               <button
                 type="button"
                 onClick={() => void refetch()}
-                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-700"
+                className="rounded-ds-lg bg-ds-neutral-bold text-ds-body font-ds-semibold text-ds-text-inverse hover:bg-ds-neutral-bold-hovered mt-5 inline-flex items-center gap-2 px-4 py-2.5 transition-colors"
               >
                 <RefreshCw className="size-4" aria-hidden />
                 다시 시도
@@ -236,9 +236,11 @@ export function HistoryPage() {
           ) : null}
 
           {!isPending && !isError && groups.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
-              <p className="font-semibold text-gray-900">아직 이동한 매물이 없어요.</p>
-              <p className="mt-2 text-sm text-gray-500">검색 결과에서 마음에 드는 매물의 상품 보기를 눌러보세요.</p>
+            <div className="rounded-ds-lg border-ds-border bg-ds-surface border border-dashed px-6 py-16 text-center">
+              <p className="font-ds-semibold text-ds-text">아직 이동한 매물이 없어요.</p>
+              <p className="text-ds-body text-ds-text-subtle mt-2">
+                검색 결과에서 마음에 드는 매물의 상품 보기를 눌러보세요.
+              </p>
             </div>
           ) : null}
 
@@ -246,7 +248,10 @@ export function HistoryPage() {
             <div className="space-y-8">
               {groups.map((group) => (
                 <section key={group.label} aria-labelledby={`history-${group.label}`}>
-                  <h2 id={`history-${group.label}`} className="mb-3 px-1 text-lg font-bold text-slate-400 sm:text-xl">
+                  <h2
+                    id={`history-${group.label}`}
+                    className="text-ds-h-sm font-ds-bold text-ds-text-subtlest sm:text-ds-h-md mb-3 px-1"
+                  >
                     {group.label}
                   </h2>
                   <div className="space-y-3">
@@ -260,7 +265,10 @@ export function HistoryPage() {
           ) : null}
 
           {isFetching && !isPending ? (
-            <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-400" role="status">
+            <div
+              className="text-ds-body text-ds-text-subtlest mt-4 flex items-center justify-center gap-2"
+              role="status"
+            >
               <LoaderCircle className="size-4 animate-spin" aria-hidden />
               최신 내역을 확인하는 중이에요.
             </div>

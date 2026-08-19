@@ -39,13 +39,13 @@ export function ProfileImagePicker({ name, value, onChange, disabled = false }: 
   };
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="font-ds flex items-center gap-4">
       <label
         htmlFor={inputId}
         className={`group relative block shrink-0 ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
       >
-        <Avatar name={name} imageUrl={value} className="size-16 text-xl" />
-        <span className="absolute right-0 bottom-0 flex size-6 items-center justify-center rounded-full border-2 border-white bg-gray-900 text-white transition-colors group-hover:bg-gray-700">
+        <Avatar name={name} imageUrl={value} className="text-ds-h-md size-16" />
+        <span className="border-ds-surface bg-ds-neutral-bold text-ds-text-inverse group-hover:bg-ds-neutral-bold-hovered absolute right-0 bottom-0 flex size-6 items-center justify-center rounded-full border-2 transition-colors">
           <Camera className="size-3.5" aria-hidden />
         </span>
         <span className="sr-only">프로필 이미지 선택</span>
@@ -64,7 +64,7 @@ export function ProfileImagePicker({ name, value, onChange, disabled = false }: 
         <div className="flex items-center gap-3">
           <label
             htmlFor={inputId}
-            className={`text-sm font-medium text-gray-700 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer hover:text-gray-900'}`}
+            className={`text-ds-text-subtle text-ds-body font-ds-medium ${disabled ? 'cursor-not-allowed' : 'hover:text-ds-text cursor-pointer'}`}
           >
             {value ? '사진 변경' : '사진 선택'}
           </label>
@@ -76,15 +76,15 @@ export function ProfileImagePicker({ name, value, onChange, disabled = false }: 
                 onChange(null);
               }}
               disabled={disabled}
-              className="inline-flex items-center gap-1 text-xs text-gray-400 transition-colors hover:text-red-500 disabled:cursor-not-allowed"
+              className="text-ds-text-subtlest hover:text-ds-danger-text text-ds-body-sm inline-flex items-center gap-1 transition-colors disabled:cursor-not-allowed"
             >
               <X className="size-3" aria-hidden />
               기본 이미지로
             </button>
           ) : null}
         </div>
-        <p className="mt-1 text-xs text-gray-400">선택 사항 · JPG, PNG · 최대 2MB</p>
-        {error ? <p className="mt-1 text-xs text-red-600">{error}</p> : null}
+        <p className="text-ds-text-subtlest text-ds-body-sm mt-1">선택 사항 · JPG, PNG · 최대 2MB</p>
+        {error ? <p className="text-ds-danger-text text-ds-body-sm mt-1">{error}</p> : null}
       </div>
     </div>
   );

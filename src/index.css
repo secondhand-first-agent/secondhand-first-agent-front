@@ -1,10 +1,158 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-sans: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
+  --font-sans: 'SUIT Variable', SUIT, system-ui, sans-serif;
 
   --color-brand: #10b981;
   --color-brand-dark: #059669;
+
+  /* ==========================================================================
+     Atlassian Design System 토큰
+     출처: @atlaskit/tokens 16.7.0 — atlassian-light / shape / typography
+     `ds-` 접두사로 분리해 두어, 적용한 페이지에만 영향을 준다.
+     ========================================================================== */
+
+  /* --- font.family.* (Atlassian Sans는 비공개 폰트라 SUIT으로 대체) --- */
+  --font-ds:
+    'SUIT Variable', SUIT, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Ubuntu, 'Helvetica Neue',
+    sans-serif;
+
+  /* --- font.weight.* --- */
+  --font-weight-ds-regular: 400;
+  --font-weight-ds-medium: 500;
+  --font-weight-ds-semibold: 600;
+  --font-weight-ds-bold: 653;
+
+  /* --- font.body.* --- */
+  --text-ds-body-sm: 0.75rem;
+  --text-ds-body-sm--line-height: 1rem;
+  --text-ds-body: 0.875rem;
+  --text-ds-body--line-height: 1.25rem;
+  --text-ds-body-lg: 1rem;
+  --text-ds-body-lg--line-height: 1.5rem;
+
+  /* --- font.heading.* --- */
+  --text-ds-h-xxs: 0.75rem;
+  --text-ds-h-xxs--line-height: 1rem;
+  --text-ds-h-xs: 0.875rem;
+  --text-ds-h-xs--line-height: 1.25rem;
+  --text-ds-h-sm: 1rem;
+  --text-ds-h-sm--line-height: 1.25rem;
+  --text-ds-h-md: 1.25rem;
+  --text-ds-h-md--line-height: 1.5rem;
+  --text-ds-h-lg: 1.5rem;
+  --text-ds-h-lg--line-height: 1.75rem;
+  --text-ds-h-xl: 1.75rem;
+  --text-ds-h-xl--line-height: 2rem;
+  --text-ds-h-2xl: 2rem;
+  --text-ds-h-2xl--line-height: 2.25rem;
+
+  /* --- 헤드라인 키워드 로테이션 --- */
+  --animate-ds-swap-in: ds-swap-in 0.45s cubic-bezier(0.2, 0, 0, 1);
+
+  @keyframes ds-swap-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.35em);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* --- radius.* --- */
+  --radius-ds-xs: 2px;
+  --radius-ds-sm: 4px;
+  --radius-ds-md: 6px;
+  --radius-ds-lg: 8px;
+  --radius-ds-xl: 12px;
+  --radius-ds-2xl: 16px;
+
+  /* --- elevation.shadow.* --- */
+  --shadow-ds-raised: 0 1px 1px rgba(30, 31, 33, 0.25), 0 0 1px rgba(30, 31, 33, 0.31);
+  --shadow-ds-overlay: 0 8px 12px rgba(30, 31, 33, 0.15), 0 0 1px rgba(30, 31, 33, 0.31);
+  --shadow-ds-overflow: 0 0 8px rgba(30, 31, 33, 0.16), 0 0 1px rgba(30, 31, 33, 0.12);
+
+  /* ==========================================================================
+     색상: Radix Colors 3.0.0 (light)
+     brand = jade, neutral = sage (Radix가 jade에 권장하는 중립 짝)
+     단계 규약: 1–2 배경 · 3–5 컴포넌트 배경 · 6–8 보더 · 9–10 솔리드 · 11–12 텍스트
+     괄호 안은 흰 배경 대비 WCAG 대비율.
+     ========================================================================== */
+
+  /* --- 텍스트 (sage 10–12) --- */
+  --color-ds-text: #1a211e; /* sage12 (16.4:1) */
+  --color-ds-text-subtle: #5f6563; /* sage11 (5.9:1) */
+  --color-ds-text-subtlest: #7c8481; /* sage10 (3.9:1) — 메타 텍스트 전용 */
+  --color-ds-text-disabled: #b8bcba; /* sage8 */
+  --color-ds-text-inverse: #ffffff;
+
+  /* --- 브랜드 (jade). 강한 대비가 필요하면 brand를 jade11(#208368)로 올리면 된다. --- */
+  --color-ds-brand: #29a383; /* jade9 — 솔리드 채움 */
+  --color-ds-brand-hovered: #26997b; /* jade10 */
+  --color-ds-brand-pressed: #208368; /* jade11 */
+  --color-ds-brand-subtlest: #e6f7ed; /* jade3 */
+  --color-ds-brand-subtler: #d6f1e3; /* jade4 */
+  --color-ds-brand-text: #208368; /* jade11 (4.7:1) */
+  --color-ds-brand-boldest: #1d3b31; /* jade12 */
+
+  /* --- 표면 (sage 1–4) --- */
+  --color-ds-surface: #ffffff;
+  --color-ds-surface-hovered: #eef1f0; /* sage3 */
+  --color-ds-surface-pressed: #e6e9e8; /* sage4 */
+  --color-ds-surface-sunken: #f7f9f8; /* sage2 */
+
+  /* --- 중립 채움 (sage) --- */
+  --color-ds-neutral: #eef1f0; /* sage3 */
+  --color-ds-neutral-hovered: #e6e9e8; /* sage4 */
+  --color-ds-neutral-bold: #1a211e; /* sage12 */
+  --color-ds-neutral-bold-hovered: #5f6563; /* sage11 */
+  --color-ds-neutral-bold-pressed: #7c8481; /* sage10 */
+
+  /* --- 보더 (sage 6–8, 포커스 링은 jade8) --- */
+  --color-ds-border: #d7dad9; /* sage6 */
+  --color-ds-border-bold: #b8bcba; /* sage8 */
+  --color-ds-border-input: #cbcfcd; /* sage7 */
+  --color-ds-border-focused: #56ba9f; /* jade8 */
+  --color-ds-border-disabled: #eef1f0; /* sage3 */
+
+  /* --- 상태 --- */
+  --color-ds-danger-bg: #feebec; /* red3 */
+  --color-ds-danger-text: #ce2c31; /* red11 (5.2:1) */
+  --color-ds-danger-border: #f4a9aa; /* red7 */
+  --color-ds-danger-bold: #e5484d; /* red9 */
+
+  --color-ds-success-bg: #e9f6e9; /* grass3 */
+  --color-ds-success-text: #2a7e3b; /* grass11 (5.1:1) */
+  --color-ds-success-border: #94ce9a; /* grass7 */
+  --color-ds-success-bold: #46a758; /* grass9 */
+
+  --color-ds-warning-bg: #fff7c2; /* amber3 */
+  --color-ds-warning-text: #ab6400; /* amber11 (4.6:1) */
+  --color-ds-warning-border: #e2a336; /* amber8 */
+
+  --color-ds-info-bg: #e6f4fe; /* blue3 */
+  --color-ds-info-text: #0d74ce; /* blue11 (4.8:1) */
+  --color-ds-info-border: #8ec8f6; /* blue7 */
+
+  /* --- 액센트 로젠지 (배경 = 3단계, 텍스트 = 11단계) --- */
+  --color-ds-accent-gray-bg: #eef1f0; /* sage3 */
+  --color-ds-accent-gray-text: #5f6563; /* sage11 */
+  --color-ds-accent-red-bg: #feebec; /* red3 */
+  --color-ds-accent-red-text: #ce2c31; /* red11 */
+  --color-ds-accent-orange-bg: #ffefd6; /* orange3 */
+  --color-ds-accent-orange-text: #cc4e00; /* orange11 */
+  --color-ds-accent-yellow-bg: #fff7c2; /* amber3 */
+  --color-ds-accent-yellow-text: #ab6400; /* amber11 */
+  --color-ds-accent-green-bg: #e9f6e9; /* grass3 */
+  --color-ds-accent-green-text: #2a7e3b; /* grass11 */
+  --color-ds-accent-blue-bg: #e6f4fe; /* blue3 */
+  --color-ds-accent-blue-text: #0d74ce; /* blue11 */
+  --color-ds-accent-purple-bg: #f4f0fe; /* violet3 */
+  --color-ds-accent-purple-text: #6550b9; /* violet11 */
+  --color-ds-accent-magenta-bg: #fee9f5; /* pink3 */
+  --color-ds-accent-magenta-text: #c2298a; /* pink11 */
 }
 
 @layer base {
@@ -12,7 +160,14 @@
     -webkit-text-size-adjust: 100%;
   }
 
+  /* 모션 최소화를 요청한 사용자에게는 키워드가 그냥 바뀌게 둔다. */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-ds-swap-in {
+      animation: none;
+    }
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-ds-surface-sunken text-ds-text antialiased;
   }
 }

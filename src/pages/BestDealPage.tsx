@@ -6,6 +6,8 @@ import {
   Laptop,
   LoaderCircle,
   Monitor,
+  Medal,
+  PiggyBank,
   RefreshCw,
   Smartphone,
   Trophy,
@@ -32,12 +34,6 @@ const CATEGORY_FILTERS: Array<{ value: CategoryFilter; label: string; Icon?: Luc
   { value: 'SMARTWATCH', label: '스마트워치', Icon: Watch },
 ];
 
-const SORT_OPTIONS: Array<{ value: BestDealSort; label: string }> = [
-  { value: 'AI_RECOMMENDED', label: 'AI 추천순' },
-  { value: 'PRICE_ASC', label: '가격 낮은순' },
-  { value: 'SAVINGS_DESC', label: '할인율 높은순' },
-];
-
 const CONDITION_LABELS: Record<BestDeal['condition'], string> = {
   UNOPENED: '미개봉',
   LIKE_NEW: '거의 새것',
@@ -52,18 +48,13 @@ const PLATFORM_LABELS: Record<BestDeal['platform'], string> = {
 };
 
 const PLATFORM_STYLES: Record<BestDeal['platform'], string> = {
-  DAANGN: 'bg-orange-50 text-orange-600',
-  BUNGJANG: 'bg-yellow-50 text-yellow-700',
-  JOONGGONARA: 'bg-rose-50 text-rose-500',
+  DAANGN: 'bg-ds-accent-orange-bg text-ds-accent-orange-text',
+  BUNGJANG: 'bg-ds-accent-yellow-bg text-ds-accent-yellow-text',
+  JOONGGONARA: 'bg-ds-danger-bg text-ds-danger-text',
 };
 
-const CATEGORY_BACKGROUNDS: Record<BestDealCategory, string> = {
-  EARPHONES: 'bg-emerald-50',
-  LAPTOP: 'bg-sky-50',
-  SMARTPHONE: 'bg-emerald-50',
-  SMARTWATCH: 'bg-amber-50',
-  OTHER: 'bg-violet-50',
-};
+/** 카테고리별로 색을 나누면 의미 없는 구분이 생기므로, 썸네일 배경은 하나로 통일한다. */
+const THUMBNAIL_BACKGROUND = 'bg-ds-surface-hovered';
 
 function formatPrice(price: number) {
   return `₩${price.toLocaleString('ko-KR')}`;
@@ -79,18 +70,24 @@ function getCategoryIcon(category: BestDealCategory, title: string): LucideIcon 
   return Gamepad2;
 }
 
+const SORT_OPTIONS: Array<{ value: BestDealSort; label: string }> = [
+  { value: 'AI_RECOMMENDED', label: 'AI 추천순' },
+  { value: 'PRICE_ASC', label: '가격 낮은순' },
+  { value: 'SAVINGS_DESC', label: '할인율 높은순' },
+];
+
 function DealThumbnail({ deal, featured }: { deal: BestDeal; featured: boolean }) {
   const Icon = getCategoryIcon(deal.category, deal.title);
 
   return (
     <div
-      className={`flex items-center justify-center overflow-hidden ${CATEGORY_BACKGROUNDS[deal.category]} ${featured ? 'min-h-56 sm:min-h-64' : 'size-24 shrink-0 rounded-2xl'}`}
+      className={`flex items-center justify-center overflow-hidden ${THUMBNAIL_BACKGROUND} ${featured ? 'min-h-56 sm:min-h-64' : 'rounded-ds-lg size-24 shrink-0'}`}
     >
       {deal.imageUrl ? (
         <img src={deal.imageUrl} alt="" className="size-full object-contain p-5" />
       ) : (
         <Icon
-          className={featured ? 'size-24 text-gray-500/70' : 'size-12 text-gray-500/70'}
+          className={featured ? 'text-ds-text-subtlest size-24' : 'text-ds-text-subtlest size-12'}
           strokeWidth={1.2}
           aria-hidden
         />
@@ -101,19 +98,26 @@ function DealThumbnail({ deal, featured }: { deal: BestDeal; featured: boolean }
 
 function PlatformBadge({ platform }: { platform: BestDeal['platform'] }) {
   return (
-    <span className={`rounded-md px-2.5 py-1.5 text-xs font-bold ${PLATFORM_STYLES[platform]}`}>
+    <span className={`rounded-ds-sm text-ds-body-sm font-ds-bold px-2.5 py-1.5 ${PLATFORM_STYLES[platform]}`}>
       {PLATFORM_LABELS[platform]}
     </span>
   );
 }
 
 function RankBadge({ rank }: { rank: number }) {
-  const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉';
-  const style = rank === 1 ? 'bg-brand text-white' : rank === 2 ? 'bg-slate-700 text-white' : 'bg-amber-600 text-white';
+  const style =
+    rank === 1
+      ? 'bg-ds-brand text-ds-text-inverse'
+      : rank === 2
+        ? 'bg-ds-neutral-bold text-ds-text-inverse'
+        : 'bg-ds-accent-gray-bg text-ds-accent-gray-text';
 
   return (
-    <span className={`inline-flex items-center rounded-full px-4 py-2 text-sm font-bold ${style}`}>
-      {medal} {rank}위
+    <span
+      className={`rounded-ds-xs text-ds-body-sm font-ds-bold inline-flex items-center gap-1 px-1.5 py-0.5 ${style}`}
+    >
+      <Medal className="size-3 shrink-0" aria-hidden />
+      {rank}위
     </span>
   );
 }
@@ -135,16 +139,16 @@ function DealCard({
 }) {
   if (!featured) {
     return (
-      <article className="group flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4 text-left transition-all hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md">
+      <article className="group rounded-ds-lg border-ds-border bg-ds-surface hover:border-ds-border hover:shadow-ds-raised flex items-center gap-4 border p-4 text-left transition-all hover:-translate-y-0.5">
         <DealThumbnail deal={deal} featured={false} />
         <div className="min-w-0 flex-1">
           <PlatformBadge platform={deal.platform} />
-          <h3 className="mt-2 truncate text-base font-bold text-gray-900">
-            <Link to={detailUrl} className="group-hover:text-emerald-600">
+          <h3 className="text-ds-body-lg font-ds-bold text-ds-text mt-2 truncate">
+            <Link to={detailUrl} className="group-hover:text-ds-brand-text">
               {deal.title}
             </Link>
           </h3>
-          <p className="mt-1 text-lg font-bold tracking-tight text-gray-900">{formatPrice(deal.price)}</p>
+          <p className="text-ds-h-sm font-ds-bold text-ds-text mt-1">{formatPrice(deal.price)}</p>
         </div>
         <button
           type="button"
@@ -154,7 +158,7 @@ function DealCard({
           }}
           aria-label={favorite ? '찜 취소' : '찜하기'}
           aria-pressed={favorite}
-          className={`flex size-11 shrink-0 items-center justify-center rounded-full border transition-colors ${favorite ? 'border-rose-200 bg-rose-50 text-rose-500' : 'border-gray-200 bg-white text-gray-400 hover:border-gray-400 hover:text-gray-700'}`}
+          className={`rounded-ds-sm flex size-8 shrink-0 items-center justify-center transition-colors ${favorite ? 'bg-ds-danger-bg text-ds-danger-bold' : 'text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text bg-transparent'}`}
         >
           <Heart className="size-5" fill={favorite ? 'currentColor' : 'none'} aria-hidden />
         </button>
@@ -164,7 +168,7 @@ function DealCard({
 
   return (
     <article
-      className={`group overflow-hidden rounded-2xl border-2 bg-white text-left transition-all hover:-translate-y-0.5 hover:shadow-lg ${rank === 1 ? 'border-brand shadow-[0_10px_30px_rgba(16,185,129,0.12)]' : 'border-gray-200'}`}
+      className={`group rounded-ds-lg bg-ds-surface hover:shadow-ds-overlay overflow-hidden border-2 text-left transition-all hover:-translate-y-0.5 ${rank === 1 ? 'border-ds-brand' : 'border-ds-border'}`}
     >
       <div className="relative">
         <DealThumbnail deal={deal} featured />
@@ -177,21 +181,22 @@ function DealCard({
       </div>
 
       <div className="p-6 sm:p-7">
-        <h3 className="truncate text-xl font-bold text-gray-900">
-          <Link to={detailUrl} className="group-hover:text-emerald-600">
+        <h3 className="text-ds-h-md font-ds-bold text-ds-text truncate">
+          <Link to={detailUrl} className="group-hover:text-ds-brand-text">
             {deal.title}
           </Link>
         </h3>
-        <p className="mt-3 text-2xl font-bold tracking-tight text-gray-900">{formatPrice(deal.price)}</p>
-        <p className="mt-2 text-sm text-gray-400">
+        <p className="text-ds-h-lg font-ds-bold text-ds-text mt-3">{formatPrice(deal.price)}</p>
+        <p className="text-ds-body text-ds-text-subtlest mt-2">
           {CONDITION_LABELS[deal.condition]} <span aria-hidden>·</span> {deal.location}
         </p>
-        <div className="my-5 border-t border-gray-100" />
-        <p className="min-h-12 text-sm leading-6 text-gray-500">“{deal.recommendationReason}”</p>
+        <div className="border-ds-border my-5 border-t" />
+        <p className="text-ds-body text-ds-text-subtle min-h-12 leading-6">“{deal.recommendationReason}”</p>
 
         <div className="mt-4 flex items-center justify-between gap-3">
-          <span className="inline-flex rounded-lg bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-500">
-            💰 새상품 대비 {formatPrice(deal.savingsAmount)} 절약
+          <span className="bg-ds-success-bg text-ds-success-text rounded-ds-sm text-ds-body font-ds-semibold inline-flex items-center gap-1.5 px-2 py-1">
+            <PiggyBank className="size-4 shrink-0" aria-hidden />
+            새상품 대비 {formatPrice(deal.savingsAmount)} 절약
           </span>
           <button
             type="button"
@@ -201,7 +206,7 @@ function DealCard({
             }}
             aria-label={favorite ? '찜 취소' : '찜하기'}
             aria-pressed={favorite}
-            className={`flex size-10 shrink-0 items-center justify-center rounded-full border transition-colors ${favorite ? 'border-rose-200 bg-rose-50 text-rose-500' : 'border-gray-200 bg-white text-gray-400 hover:border-gray-400 hover:text-gray-700'}`}
+            className={`rounded-ds-sm flex size-8 shrink-0 items-center justify-center transition-colors ${favorite ? 'bg-ds-danger-bg text-ds-danger-bold' : 'text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text bg-transparent'}`}
           >
             <Heart className="size-5" fill={favorite ? 'currentColor' : 'none'} aria-hidden />
           </button>
@@ -215,12 +220,12 @@ function DealSkeleton() {
   return (
     <div className="grid gap-5 lg:grid-cols-3" aria-label="Best Deal을 불러오는 중">
       {[0, 1, 2].map((item) => (
-        <div key={item} className="animate-pulse overflow-hidden rounded-2xl border border-gray-200 bg-white">
-          <div className="min-h-56 bg-gray-100" />
+        <div key={item} className="rounded-ds-lg border-ds-border bg-ds-surface animate-pulse overflow-hidden border">
+          <div className="bg-ds-surface-hovered min-h-56" />
           <div className="space-y-4 p-6">
-            <div className="h-6 w-3/4 rounded bg-gray-100" />
-            <div className="h-7 w-1/2 rounded bg-gray-100" />
-            <div className="h-4 w-2/3 rounded bg-gray-100" />
+            <div className="bg-ds-surface-hovered h-6 w-3/4 rounded" />
+            <div className="bg-ds-surface-hovered h-7 w-1/2 rounded" />
+            <div className="bg-ds-surface-hovered h-4 w-2/3 rounded" />
           </div>
         </div>
       ))}
@@ -267,11 +272,11 @@ export function BestDealPage() {
     <section className="bg-[#f8fafc] px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
       <div className="mx-auto max-w-[1440px]">
         <header>
-          <h1 className="flex items-center gap-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            <Trophy className="size-8 text-amber-500 sm:size-9" aria-hidden />
+          <h1 className="text-ds-h-xl font-ds-bold text-ds-text sm:text-ds-h-2xl flex items-center gap-2">
+            <Trophy className="text-ds-warning-border size-8 sm:size-9" aria-hidden />
             오늘의 Best Deal
           </h1>
-          <p className="mt-3 text-base leading-7 text-gray-500 sm:text-lg">
+          <p className="text-ds-body-lg text-ds-text-subtle sm:text-ds-h-sm mt-3 leading-7">
             AI가 가격·상품 상태·판매자 신뢰도까지 종합해서 고른 매물이에요. 최저가가 아니라, 가장 합리적인 딜이에요.
           </p>
         </header>
@@ -290,7 +295,7 @@ export function BestDealPage() {
                     setCategory(value);
                     setShowAll(false);
                   }}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors sm:text-base ${selected ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-200 bg-white text-gray-500 hover:border-gray-400 hover:text-gray-900'}`}
+                  className={`text-ds-body font-ds-semibold sm:text-ds-body-lg rounded-ds-sm inline-flex items-center gap-1.5 border px-3 py-1.5 transition-colors ${selected ? 'border-ds-brand bg-ds-brand-subtlest text-ds-brand-text' : 'border-ds-border bg-ds-surface text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text'}`}
                 >
                   {Icon ? <Icon className="size-4" aria-hidden /> : null}
                   {label}
@@ -312,13 +317,13 @@ export function BestDealPage() {
           {isPending ? <DealSkeleton /> : null}
 
           {isError ? (
-            <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
-              <p className="font-semibold text-gray-900">Best Deal을 불러오지 못했어요.</p>
-              <p className="mt-2 text-sm text-gray-500">{getErrorMessage(error)}</p>
+            <div className="rounded-ds-lg border-ds-border bg-ds-surface border border-dashed px-6 py-16 text-center">
+              <p className="font-ds-semibold text-ds-text">Best Deal을 불러오지 못했어요.</p>
+              <p className="text-ds-body text-ds-text-subtle mt-2">{getErrorMessage(error)}</p>
               <button
                 type="button"
                 onClick={() => void refetch()}
-                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-700"
+                className="rounded-ds-lg bg-ds-neutral-bold text-ds-body font-ds-semibold text-ds-text-inverse hover:bg-ds-neutral-bold-hovered mt-5 inline-flex items-center gap-2 px-4 py-2.5 transition-colors"
               >
                 <RefreshCw className="size-4" aria-hidden />
                 다시 시도
@@ -327,9 +332,9 @@ export function BestDealPage() {
           ) : null}
 
           {!isPending && !isError && sortedDeals.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
-              <p className="font-semibold text-gray-900">아직 이 카테고리의 딜이 없어요.</p>
-              <p className="mt-2 text-sm text-gray-500">다른 카테고리에서 오늘의 추천 딜을 확인해 보세요.</p>
+            <div className="rounded-ds-lg border-ds-border bg-ds-surface border border-dashed px-6 py-16 text-center">
+              <p className="font-ds-semibold text-ds-text">아직 이 카테고리의 딜이 없어요.</p>
+              <p className="text-ds-body text-ds-text-subtle mt-2">다른 카테고리에서 오늘의 추천 딜을 확인해 보세요.</p>
             </div>
           ) : null}
 
@@ -351,7 +356,7 @@ export function BestDealPage() {
 
           {!isPending && !isError && additionalDeals.length > 0 ? (
             <section className="mt-12" aria-labelledby="more-deals-heading">
-              <h2 id="more-deals-heading" className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
+              <h2 id="more-deals-heading" className="text-ds-h-md font-ds-bold text-ds-text sm:text-ds-h-lg">
                 이런 딜도 놓치지 마세요
               </h2>
               <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -371,7 +376,7 @@ export function BestDealPage() {
                 <button
                   type="button"
                   onClick={() => setShowAll((visible) => !visible)}
-                  className="mt-6 flex w-full items-center justify-center rounded-2xl border border-gray-200 bg-white py-5 text-base font-bold text-gray-600 transition-colors hover:border-gray-400 hover:text-gray-900"
+                  className="rounded-ds-lg border-ds-border bg-ds-surface text-ds-body-lg font-ds-bold text-ds-text-subtle hover:border-ds-border-bold hover:text-ds-text mt-6 flex w-full items-center justify-center border py-5 transition-colors"
                 >
                   {showAll ? '딜 접기' : '더 많은 딜 보기'}
                 </button>
@@ -380,7 +385,10 @@ export function BestDealPage() {
           ) : null}
 
           {isFetching && !isPending ? (
-            <div className="mt-5 flex items-center justify-center gap-2 text-sm text-gray-400" role="status">
+            <div
+              className="text-ds-body text-ds-text-subtlest mt-5 flex items-center justify-center gap-2"
+              role="status"
+            >
               <LoaderCircle className="size-4 animate-spin" aria-hidden />
               최신 딜을 확인하는 중이에요.
             </div>

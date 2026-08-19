@@ -99,7 +99,7 @@ export function Dropdown<Value extends string>({
   };
 
   return (
-    <div ref={containerRef} className={`relative ${className}`}>
+    <div ref={containerRef} className={`font-ds relative ${className}`}>
       <button
         ref={triggerRef}
         type="button"
@@ -109,12 +109,12 @@ export function Dropdown<Value extends string>({
         aria-controls={listboxId}
         onClick={() => setIsOpen((open) => !open)}
         onKeyDown={onTriggerKeyDown}
-        className="flex w-full items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-left text-sm font-semibold text-gray-600 transition-colors hover:border-gray-400 focus:border-gray-400 focus:ring-2 focus:ring-gray-900/10 focus:outline-none"
+        className="border-ds-border bg-ds-surface text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text rounded-ds-sm text-ds-body font-ds-medium focus:border-ds-border-focused focus:ring-ds-border-focused flex h-8 w-full items-center gap-2 border px-3 text-left transition-colors focus:ring-1 focus:outline-none"
       >
         {leading}
         <span className="min-w-0 flex-1 truncate">{selectedOption?.label}</span>
         <ChevronDown
-          className={`size-4 shrink-0 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`text-ds-text-subtlest size-4 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
           aria-hidden
         />
       </button>
@@ -124,7 +124,7 @@ export function Dropdown<Value extends string>({
           id={listboxId}
           role="listbox"
           aria-label={ariaLabel}
-          className="absolute top-full right-0 z-30 mt-2 w-full min-w-44 overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg"
+          className="border-ds-border bg-ds-surface shadow-ds-overlay rounded-ds-sm absolute top-full right-0 z-30 mt-1 w-full min-w-44 overflow-hidden border p-1"
         >
           {options.map((option, index) => {
             const isSelected = option.value === value;
@@ -140,14 +140,14 @@ export function Dropdown<Value extends string>({
                 tabIndex={index === activeIndex ? 0 : -1}
                 onClick={() => selectOption(index)}
                 onKeyDown={(event) => onOptionKeyDown(event, index)}
-                className={`flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${
+                className={`rounded-ds-xs text-ds-body flex w-full items-center gap-2 px-2.5 py-1.5 text-left transition-colors ${
                   isSelected
-                    ? 'bg-gray-100 font-semibold text-gray-900'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-ds-brand-subtlest text-ds-brand-text font-ds-medium'
+                    : 'text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text'
                 }`}
               >
                 <span className="min-w-0 flex-1">{option.label}</span>
-                {isSelected ? <Check className="text-brand size-4 shrink-0" aria-hidden /> : null}
+                {isSelected ? <Check className="text-ds-brand size-4 shrink-0" aria-hidden /> : null}
               </button>
             );
           })}

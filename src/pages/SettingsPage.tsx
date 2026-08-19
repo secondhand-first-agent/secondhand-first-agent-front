@@ -19,7 +19,7 @@ function ChangeButton({ onClick, children = '변경' }: { onClick: () => void; c
     <button
       type="button"
       onClick={onClick}
-      className="shrink-0 rounded px-1 text-sm text-gray-500 transition-colors hover:text-gray-900"
+      className="text-ds-body text-ds-text-subtle hover:text-ds-text shrink-0 rounded px-1 transition-colors"
     >
       {children}
     </button>
@@ -27,7 +27,7 @@ function ChangeButton({ onClick, children = '변경' }: { onClick: () => void; c
 }
 
 function SectionTitle({ children }: { children: string }) {
-  return <h2 className="mt-8 mb-2 text-xs font-semibold text-gray-500">{children}</h2>;
+  return <h2 className="text-ds-body-sm font-ds-semibold text-ds-text-subtle mt-8 mb-2">{children}</h2>;
 }
 
 export function SettingsPage() {
@@ -41,8 +41,8 @@ export function SettingsPage() {
   const [nameDraft, setNameDraft] = useState('');
   const [confirmingWithdraw, setConfirmingWithdraw] = useState(false);
 
-  if (isPending) return <p className="mx-auto max-w-2xl px-4 py-16 text-gray-500">불러오는 중…</p>;
-  if (isError) return <p className="mx-auto max-w-2xl px-4 py-16 text-red-600">{getErrorMessage(error)}</p>;
+  if (isPending) return <p className="text-ds-text-subtle mx-auto max-w-2xl px-4 py-16">불러오는 중…</p>;
+  if (isError) return <p className="text-ds-danger-text mx-auto max-w-2xl px-4 py-16">{getErrorMessage(error)}</p>;
 
   const close = () => setEditing(null);
 
@@ -69,21 +69,21 @@ export function SettingsPage() {
     <div className="mx-auto max-w-2xl px-4 py-8">
       <Link
         to={ROUTES.profile}
-        className="-ml-1.5 inline-flex items-center gap-1.5 rounded px-1.5 py-1 text-sm text-gray-500 hover:text-gray-900"
+        className="text-ds-body text-ds-text-subtle hover:text-ds-text -ml-1.5 inline-flex items-center gap-1.5 rounded px-1.5 py-1"
       >
         <ArrowLeft className="size-4" aria-hidden />
         마이페이지로 돌아가기
       </Link>
 
-      <h1 className="mt-3 text-2xl font-bold tracking-tight text-gray-900">설정</h1>
-      <p className="mt-1 text-sm text-gray-500">프로필과 계정 정보를 관리해요</p>
+      <h1 className="text-ds-h-lg font-ds-bold text-ds-text mt-3">설정</h1>
+      <p className="text-ds-body text-ds-text-subtle mt-1">프로필과 계정 정보를 관리해요</p>
 
       <div className="mt-6">
         <FormAlert message={updateProfile.isError ? getErrorMessage(updateProfile.error) : undefined} />
       </div>
 
       <SectionTitle>프로필</SectionTitle>
-      <section className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
+      <section className="rounded-ds-lg border-ds-border bg-ds-surface divide-y divide-gray-100 border">
         <SettingRow label="프로필 사진" description="다른 사용자에게 보여지는 이미지예요">
           <div className="mt-3">
             <ProfileImagePicker
@@ -117,17 +117,21 @@ export function SettingsPage() {
                 aria-label="이름"
                 maxLength={20}
                 autoFocus
-                className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+                className="rounded-ds-sm border-ds-border text-ds-body focus:border-ds-border-focused focus:ring-ds-border-focused block w-full border px-3 py-2 outline-none focus:ring-1"
               />
               <div className="mt-3 flex justify-end gap-2">
-                <button type="button" onClick={close} className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-900">
+                <button
+                  type="button"
+                  onClick={close}
+                  className="text-ds-body text-ds-text-subtle hover:text-ds-text px-3 py-1.5"
+                >
                   취소
                 </button>
                 <button
                   type="button"
                   onClick={saveName}
                   disabled={!nameDraft.trim() || updateProfile.isPending}
-                  className="bg-brand hover:bg-brand-dark rounded-md px-4 py-1.5 text-sm font-medium text-white transition-colors disabled:bg-gray-300"
+                  className="bg-ds-brand hover:bg-ds-brand-hovered rounded-ds-sm text-ds-body font-ds-medium text-ds-text-inverse disabled:bg-ds-neutral-hovered px-4 py-1.5 transition-colors"
                 >
                   저장
                 </button>
@@ -138,19 +142,19 @@ export function SettingsPage() {
 
         <SettingRow
           label="위치"
-          leading={<MapPin className="size-4 text-gray-400" aria-hidden />}
+          leading={<MapPin className="text-ds-text-subtlest size-4" aria-hidden />}
           description={me.region ? `${me.region.name}, ${me.region.district}` : '설정되지 않음'}
           action={editing === 'region' ? null : <ChangeButton onClick={() => setEditing('region')} />}
         >
           {editing === 'region' ? (
             <div className="mt-3">
-              <p className="mb-2 text-xs text-gray-500">활동 지역을 선택하세요</p>
+              <p className="text-ds-body-sm text-ds-text-subtle mb-2">활동 지역을 선택하세요</p>
               {regions.isPending ? (
-                <p className="text-sm text-gray-400">불러오는 중…</p>
+                <p className="text-ds-body text-ds-text-subtlest">불러오는 중…</p>
               ) : regions.isError ? (
-                <p className="text-sm text-red-600">{getErrorMessage(regions.error)}</p>
+                <p className="text-ds-body text-ds-danger-text">{getErrorMessage(regions.error)}</p>
               ) : (
-                <ul className="divide-y divide-gray-100 overflow-hidden rounded-lg border border-gray-200">
+                <ul className="rounded-ds-md border-ds-border divide-y divide-gray-100 overflow-hidden border">
                   {regions.data.map((region) => {
                     const selected = region.id === me.region?.id;
                     return (
@@ -160,12 +164,14 @@ export function SettingsPage() {
                           onClick={() => saveRegion(region.id)}
                           disabled={updateProfile.isPending}
                           aria-current={selected || undefined}
-                          className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm transition-colors ${
-                            selected ? 'bg-brand/5 font-medium text-gray-900' : 'text-gray-700 hover:bg-gray-50'
+                          className={`text-ds-body flex w-full items-center justify-between px-4 py-3 text-left transition-colors ${
+                            selected
+                              ? 'bg-brand/5 font-ds-medium text-ds-text'
+                              : 'text-ds-text-subtle hover:bg-ds-surface-sunken'
                           }`}
                         >
                           {region.name} · {region.district}
-                          {selected ? <Check className="text-brand size-4" aria-hidden /> : null}
+                          {selected ? <Check className="text-ds-brand size-4" aria-hidden /> : null}
                         </button>
                       </li>
                     );
@@ -173,7 +179,11 @@ export function SettingsPage() {
                 </ul>
               )}
               <div className="mt-3 flex justify-end">
-                <button type="button" onClick={close} className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-900">
+                <button
+                  type="button"
+                  onClick={close}
+                  className="text-ds-body text-ds-text-subtle hover:text-ds-text px-3 py-1.5"
+                >
                   취소
                 </button>
               </div>
@@ -183,24 +193,27 @@ export function SettingsPage() {
       </section>
 
       <SectionTitle>계정</SectionTitle>
-      <section className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
+      <section className="rounded-ds-lg border-ds-border bg-ds-surface divide-y divide-gray-100 border">
         <SettingRow
           label="이메일"
           description={me.email}
-          action={<span className="shrink-0 px-1 text-sm text-gray-300">준비 중</span>}
+          action={<span className="text-ds-body text-ds-text-subtlest shrink-0 px-1">준비 중</span>}
         />
-        <SettingRow label="비밀번호" action={<span className="shrink-0 px-1 text-sm text-gray-300">준비 중</span>} />
+        <SettingRow
+          label="비밀번호"
+          action={<span className="text-ds-body text-ds-text-subtlest shrink-0 px-1">준비 중</span>}
+        />
       </section>
 
       <SectionTitle>계정 관리</SectionTitle>
-      <section className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
+      <section className="rounded-ds-lg border-ds-border bg-ds-surface divide-y divide-gray-100 border">
         <button
           type="button"
           onClick={onLogout}
-          className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-gray-50"
+          className="hover:bg-ds-surface-sunken flex w-full items-center justify-between px-5 py-4 text-left transition-colors"
         >
-          <span className="text-sm font-semibold text-gray-900">로그아웃</span>
-          <ChevronRight className="size-4 text-gray-400" aria-hidden />
+          <span className="text-ds-body font-ds-semibold text-ds-text">로그아웃</span>
+          <ChevronRight className="text-ds-text-subtlest size-4" aria-hidden />
         </button>
 
         <SettingRow
@@ -211,7 +224,7 @@ export function SettingsPage() {
               <button
                 type="button"
                 onClick={() => setConfirmingWithdraw(true)}
-                className="shrink-0 rounded px-1 text-sm text-red-600 hover:text-red-700"
+                className="text-ds-body text-ds-danger-text hover:text-ds-danger-text shrink-0 rounded px-1"
               >
                 탈퇴하기
               </button>
@@ -219,16 +232,16 @@ export function SettingsPage() {
           }
         >
           {confirmingWithdraw ? (
-            <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
-              <p className="text-sm text-red-700">정말 탈퇴하시겠어요? 되돌릴 수 없습니다.</p>
+            <div className="rounded-ds-md border-ds-danger-border bg-ds-danger-bg mt-3 border px-4 py-3">
+              <p className="text-ds-body text-ds-danger-text">정말 탈퇴하시겠어요? 되돌릴 수 없습니다.</p>
               {withdrawMutation.isError ? (
-                <p className="mt-1.5 text-xs text-red-600">{getErrorMessage(withdrawMutation.error)}</p>
+                <p className="text-ds-body-sm text-ds-danger-text mt-1.5">{getErrorMessage(withdrawMutation.error)}</p>
               ) : null}
               <div className="mt-3 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setConfirmingWithdraw(false)}
-                  className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900"
+                  className="text-ds-body text-ds-text-subtle hover:text-ds-text px-3 py-1.5"
                 >
                   취소
                 </button>
@@ -236,7 +249,7 @@ export function SettingsPage() {
                   type="button"
                   onClick={onWithdraw}
                   disabled={withdrawMutation.isPending}
-                  className="rounded-md bg-red-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:bg-gray-300"
+                  className="rounded-ds-sm bg-ds-danger-bold text-ds-body font-ds-medium text-ds-text-inverse hover:bg-ds-danger-text disabled:bg-ds-neutral-hovered px-4 py-1.5 transition-colors"
                 >
                   탈퇴하기
                 </button>

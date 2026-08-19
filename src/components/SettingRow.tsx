@@ -10,12 +10,14 @@ interface SettingRowProps {
 
 export function SettingRow({ label, description, leading, action, children }: SettingRowProps) {
   return (
-    <div className="px-5 py-4">
+    <div className="font-ds px-4 py-3">
       <div className="flex items-center gap-4">
         {leading}
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-gray-900">{label}</p>
-          {description ? <div className="mt-0.5 truncate text-xs text-gray-500">{description}</div> : null}
+          <p className="text-ds-text text-ds-body font-ds-semibold">{label}</p>
+          {description ? (
+            <div className="text-ds-text-subtle text-ds-body-sm mt-0.5 truncate">{description}</div>
+          ) : null}
         </div>
         {action}
       </div>
