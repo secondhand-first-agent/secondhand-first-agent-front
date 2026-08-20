@@ -1,28 +1,32 @@
+import { useQuery } from '@tanstack/react-query';
 import {
   Award,
   ChevronDown,
-  ExternalLink,
   Headphones,
   Leaf,
-  MapPin,
-  PiggyBank,
+  LoaderCircle,
+  Search,
   Send,
-  ShieldCheck,
   Sparkles,
-  Store,
   ThumbsUp,
-  TrendingDown,
   type LucideIcon,
 } from 'lucide-react';
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
-import type { Condition, Platform, SearchResultProduct, SearchSort } from '@/api/searches/search.schema';
+import { getErrorMessage } from '@/api/response';
+import type {
+  Condition,
+  ParsedConditions,
+  Platform,
+  SearchPriority,
+  SearchRecommendation,
+  SearchSort,
+} from '@/api/searches/search.schema';
 import assistantAvatarUrl from '@/assets/image/cat-avatar.png';
-import { productDetailPath } from '@/app/routes';
+import { ROUTES, productDetailPath } from '@/app/routes';
 import { Dropdown } from '@/components/Dropdown';
-import { CARBON_SAVED_HINT, estimateCarbonSavedKg } from '@/features/products/carbon';
-import { createMockSearchData } from '@/features/search/search.mock';
+import { queryFactory } from '@/queryFactory';
 
 type PlatformFilter = 'ALL' | Platform;
 
@@ -34,10 +38,13 @@ const PLATFORM_TABS: Array<{ value: PlatformFilter; label: string }> = [
   { value: 'ELEVENST', label: '11번가' },
 ];
 
+/**
+ * 서버가 정렬해 주지 않아 받은 목록을 화면에서 정렬한다.
+ * 거리는 검색 응답에 없으므로 거리순은 두지 않는다.
+ */
 const SORT_OPTIONS: Array<{ value: SearchSort; label: string }> = [
   { value: 'AI_RECOMMENDED', label: 'AI 추천순' },
   { value: 'PRICE_ASC', label: '가격 낮은순' },
-  { value: 'DISTANCE_ASC', label: '거리 가까운순' },
 ];
 
 const CONDITION_LABELS: Record<Condition, string> = {
@@ -47,6 +54,13 @@ const CONDITION_LABELS: Record<Condition, string> = {
   USED: '사용감 있음',
   UNSPECIFIED: '상태 미기재',
   UNKNOWN: '상태 확인 필요',
+};
+
+const PRIORITY_LABELS: Record<SearchPriority, string> = {
+  BEST_VALUE: '최고 가성비',
+  LOWEST_PRICE: '최저가',
+  BEST_CONDITION: '상태 우선',
+  NEAREST: '가까운 거리 우선',
 };
 
 const PLATFORM_LABELS: Record<Platform, string> = {
@@ -79,8 +93,6 @@ const PLATFORM_TONES: Record<Platform, LozengeTone> = {
   ELEVENST: 'purple',
 };
 
-const QUICK_QUESTIONS = ['미개봉만 보여줘', '더 저렴한 것도', '판교 근처만'];
-
 /** ADS 버튼 기본형 — height 32px, radius.small(4px), font.body(14/20) */
 const BUTTON_BASE =
   'rounded-ds-sm text-ds-body font-ds-medium focus-visible:outline-ds-border-focused inline-flex items-center justify-center gap-1.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2';
@@ -89,15 +101,19 @@ function formatPrice(price: number) {
   return `₩${price.toLocaleString('ko-KR')}`;
 }
 
-function formatDistance(distanceKm: number | null | undefined) {
-  return distanceKm == null ? '택배 거래' : `${distanceKm}km 거리`;
+/** 소수점이 길게 붙어 오는 값이라 한 자리로 줄인다. */
+function formatCarbon(co2eKg: number) {
+  return co2eKg >= 10 ? Math.round(co2eKg) : Math.round(co2eKg * 10) / 10;
 }
 
-function followUpReply(message: string) {
-  if (message.includes('미개봉')) return '미개봉 매물만 추려서 다시 추천할게요.';
-  if (message.includes('저렴')) return '가격을 낮춰서 더 가성비 좋은 매물을 찾아볼게요.';
-  if (message.includes('판교')) return '판교 근처에서 직거래할 수 있는 매물을 우선해서 보여드릴게요.';
-  return `'${message}' 조건을 반영해서 결과를 다시 정렬할게요.`;
+/** AI가 해석한 조건을 라벨 목록으로 편다. 없는 조건은 칩도 만들지 않는다. */
+function conditionTags(parsed: ParsedConditions): string[] {
+  return [
+    parsed.keyword,
+    parsed.maxPrice == null ? null : `${formatPrice(parsed.maxPrice)} 이하`,
+    ...parsed.condition.map((condition) => CONDITION_LABELS[condition]),
+    PRIORITY_LABELS[parsed.priority],
+  ].filter((label): label is string => Boolean(label));
 }
 
 function Lozenge({
@@ -155,7 +171,7 @@ const THUMBNAIL_SIZES: Record<ThumbnailSize, { box: string; icon: string; pad: s
   compact: { box: 'rounded-ds-md size-14 shrink-0', icon: 'size-7', pad: 'p-2' },
 };
 
-function ProductThumbnail({ product, size = 'card' }: { product: SearchResultProduct; size?: ThumbnailSize }) {
+function ProductThumbnail({ product, size = 'card' }: { product: SearchRecommendation; size?: ThumbnailSize }) {
   const { box, icon, pad } = THUMBNAIL_SIZES[size];
   return (
     <div className={`bg-ds-surface-hovered relative flex items-center justify-center overflow-hidden ${box}`}>
@@ -168,6 +184,16 @@ function ProductThumbnail({ product, size = 'card' }: { product: SearchResultPro
   );
 }
 
+function CarbonLozenge({ carbonSaving }: { carbonSaving: SearchRecommendation['carbonSaving'] }) {
+  if (!carbonSaving || carbonSaving.status !== 'AVAILABLE' || carbonSaving.co2eKg == null) return null;
+
+  return (
+    <Lozenge tone="blue" icon={Leaf} title={carbonSaving.source ?? undefined}>
+      탄소 약 {formatCarbon(carbonSaving.co2eKg)}kg 절감
+    </Lozenge>
+  );
+}
+
 function ResultCard({
   product,
   featured,
@@ -175,14 +201,12 @@ function ResultCard({
   detailHref,
   onSelect,
 }: {
-  product: SearchResultProduct;
+  product: SearchRecommendation;
   featured: boolean;
   selected: boolean;
-  detailHref: string;
+  detailHref: string | null;
   onSelect: () => void;
 }) {
-  const carbonSavedKg = estimateCarbonSavedKg(product.title);
-
   return (
     <article
       className={`rounded-ds-lg bg-ds-surface hover:shadow-ds-overlay relative overflow-hidden transition-shadow ${
@@ -194,12 +218,14 @@ function ResultCard({
         (overflow:hidden) 가 넓혀둔 영역까지 잘라내서 카드 전체가 눌리지 않는다.
         카드 안의 버튼들은 relative z-10 으로 이 덮개 위에 올린다.
       */}
-      <Link
-        to={detailHref}
-        onClick={onSelect}
-        aria-label={`${product.title} 상세 보기`}
-        className="rounded-ds-lg focus-visible:outline-ds-border-focused absolute inset-0 focus-visible:outline-2 focus-visible:outline-offset-2"
-      />
+      {detailHref ? (
+        <Link
+          to={detailHref}
+          onClick={onSelect}
+          aria-label={`${product.title} 상세 보기`}
+          className="rounded-ds-lg focus-visible:outline-ds-border-focused absolute inset-0 focus-visible:outline-2 focus-visible:outline-offset-2"
+        />
+      ) : null}
       <div
         className={featured ? 'grid sm:grid-cols-[minmax(180px,0.55fr)_minmax(0,1.45fr)]' : 'flex gap-4 p-4 sm:gap-5'}
       >
@@ -225,115 +251,66 @@ function ResultCard({
         >
           <div className="flex items-center gap-2">
             <Lozenge tone={PLATFORM_TONES[product.platform]}>{PLATFORM_LABELS[product.platform]}</Lozenge>
-            <span className="text-ds-text-subtlest text-ds-body-sm">
-              {product.rank === 1 ? '2시간 전' : `${product.rank + 2}시간 전`}
-            </span>
+            {product.recommendationScore == null ? null : (
+              <span className="text-ds-text-subtlest text-ds-body-sm">
+                AI 추천 점수 {Math.round(product.recommendationScore)}점
+              </span>
+            )}
           </div>
 
           <h3 className={`text-ds-text font-ds-bold mt-1.5 truncate ${featured ? 'text-ds-h-md' : 'text-ds-h-sm'}`}>
             {product.title}
           </h3>
-          <p className="text-ds-text-subtle text-ds-body mt-0.5 truncate">
-            {CONDITION_LABELS[product.condition]} · {product.tradeType[0] === 'DIRECT' ? '판매 직거래' : '택배 거래'} ·{' '}
-            {formatDistance(product.distanceKm)}
+
+          <p className={`text-ds-text font-ds-bold ${featured ? 'text-ds-h-lg mt-5' : 'text-ds-h-md mt-3'}`}>
+            {formatPrice(product.price)}
           </p>
 
-          <div className={`flex items-end justify-between gap-4 ${featured ? 'mt-5' : 'mt-3'}`}>
-            <div>
-              <p className={`text-ds-text font-ds-bold ${featured ? 'text-ds-h-lg' : 'text-ds-h-md'}`}>
-                {formatPrice(product.price)}
-              </p>
-              {featured ? (
-                <p className="text-ds-text-subtlest text-ds-body-sm mt-0.5 line-through">
-                  {formatPrice(product.officialPrice)}
-                </p>
-              ) : null}
-              <p className="text-ds-success-text text-ds-body-sm font-ds-semibold mt-1">
-                정가 대비 {product.savingsRate}% 절약
-              </p>
-            </div>
-            {/* 카드를 덮은 링크 위로 올려서 각자의 동작이 살아 있게 한다. */}
-            <div className="relative z-10 flex shrink-0 items-center gap-2">
-              {featured ? (
-                <Link
-                  to={detailHref}
-                  onClick={onSelect}
-                  className={`${BUTTON_BASE} text-ds-text-inverse h-8 px-3 ${
-                    selected
-                      ? 'bg-ds-neutral-bold hover:bg-ds-neutral-bold-hovered'
-                      : 'bg-ds-brand hover:bg-ds-brand-hovered active:bg-ds-brand-pressed'
-                  }`}
-                >
-                  {selected ? '선택됨' : '상품 보기'}
-                </Link>
-              ) : null}
-            </div>
-          </div>
+          {product.recommendationReason ? (
+            <p className="text-ds-text-subtle text-ds-body mt-1.5 line-clamp-2">{product.recommendationReason}</p>
+          ) : null}
 
           <div className="mt-3 flex flex-wrap items-center gap-1.5">
-            {featured ? (
-              <Lozenge tone="green" icon={PiggyBank}>
-                정가 대비 {formatPrice(product.savingsAmount)} 절약
-              </Lozenge>
-            ) : null}
-            <Lozenge tone="blue" icon={Leaf} title={CARBON_SAVED_HINT}>
-              탄소 약 {carbonSavedKg}kg 절감
-            </Lozenge>
+            <CarbonLozenge carbonSaving={product.carbonSaving} />
           </div>
+
+          {featured && detailHref ? (
+            /* 카드를 덮은 링크 위로 올려서 각자의 동작이 살아 있게 한다. */
+            <div className="relative z-10 mt-4 flex shrink-0 items-center gap-2">
+              <Link
+                to={detailHref}
+                onClick={onSelect}
+                className={`${BUTTON_BASE} text-ds-text-inverse h-8 px-3 ${
+                  selected
+                    ? 'bg-ds-neutral-bold hover:bg-ds-neutral-bold-hovered'
+                    : 'bg-ds-brand hover:bg-ds-brand-hovered active:bg-ds-brand-pressed'
+                }`}
+              >
+                {selected ? '선택됨' : '상품 보기'}
+              </Link>
+            </div>
+          ) : null}
         </div>
       </div>
     </article>
   );
 }
 
-function OfficialPriceCard({
-  name,
-  officialStore,
-  officialPrice,
-  officialUrl,
-  maxSavingsRate,
-}: {
-  name: string;
-  officialStore: string;
-  officialPrice: number;
-  officialUrl: string;
-  maxSavingsRate: number;
-}) {
+/** 세션 없이 들어왔거나 결과를 되살릴 수 없을 때 보여주는 안내. */
+function SearchPlaceholder({ title, description }: { title: string; description: string }) {
   return (
-    <section className="rounded-ds-lg border-ds-border bg-ds-surface shadow-ds-raised border p-4 sm:p-5">
-      <h2 className="text-ds-text text-ds-h-sm font-ds-bold flex items-center gap-1.5">
-        <Store className="text-ds-text-subtle size-4" aria-hidden />
-        공식 사이트 정가 비교
-      </h2>
-
-      <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center xl:flex-nowrap">
-        <div className="bg-ds-surface-hovered text-ds-text-subtle rounded-ds-md flex size-12 shrink-0 items-center justify-center">
-          <Store className="size-6" strokeWidth={1.7} aria-hidden />
-        </div>
-        <div className="min-w-0">
-          <p className="text-ds-text-subtlest text-ds-body-sm">{officialStore}</p>
-          <p className="text-ds-text text-ds-h-md font-ds-bold mt-0.5 truncate">{name}</p>
-        </div>
-        <div className="sm:ml-auto sm:text-right">
-          <p className="text-ds-text-subtlest text-ds-body-sm">공식 정가</p>
-          <p className="text-ds-text-subtle text-ds-h-lg font-ds-bold mt-0.5 line-through">
-            {formatPrice(officialPrice)}
-          </p>
-        </div>
-        <a
-          href={officialUrl}
-          target="_blank"
-          rel="noreferrer"
-          className={`${BUTTON_BASE} border-ds-border text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text h-8 shrink-0 border px-3`}
+    <section className="font-ds bg-ds-surface-sunken min-h-[60dvh] px-4 py-20">
+      <div className="rounded-ds-lg border-ds-border bg-ds-surface mx-auto max-w-lg border border-dashed px-6 py-14 text-center">
+        <Sparkles className="text-ds-text-subtlest mx-auto size-6" aria-hidden />
+        <p className="text-ds-text text-ds-h-sm font-ds-bold mt-3">{title}</p>
+        <p className="text-ds-text-subtle text-ds-body mt-1">{description}</p>
+        <Link
+          to={ROUTES.home}
+          className={`${BUTTON_BASE} bg-ds-brand hover:bg-ds-brand-hovered active:bg-ds-brand-pressed text-ds-text-inverse mt-5 h-9 px-4`}
         >
-          공식 사이트에서 보기
-          <ExternalLink className="size-3.5" aria-hidden />
-        </a>
-      </div>
-
-      <div className="bg-ds-success-bg text-ds-success-text rounded-ds-sm text-ds-body font-ds-medium mt-4 flex items-center gap-2 px-3 py-2">
-        <TrendingDown className="size-4 shrink-0" aria-hidden />
-        아래 중고 매물은 공식 정가 대비 최대 {maxSavingsRate}% 저렴해요
+          <Search className="size-4" aria-hidden />
+          검색하러 가기
+        </Link>
       </div>
     </section>
   );
@@ -341,51 +318,60 @@ function OfficialPriceCard({
 
 export function SearchPage() {
   const [searchParams] = useSearchParams();
-  const rawKeyword = searchParams.get('q')?.trim() ?? '';
-  const keyword = rawKeyword || '30만원으로 에어팟 사고 싶어, 중고 괜찮아';
-  const { session, results } = useMemo(() => createMockSearchData(keyword), [keyword]);
+  const sessionId = searchParams.get('sessionId')?.trim() ?? '';
+
+  const session = useQuery(queryFactory.searches.session(sessionId));
+  // 결과 목록은 검색을 만든 뮤테이션이 캐시에 심어 둔 것만 있다. 다시 받아올 API 가 없다.
+  const { data: recommendations } = useQuery(queryFactory.searches.recommendations(sessionId));
+
   const [platform, setPlatform] = useState<PlatformFilter>('ALL');
   const [sort, setSort] = useState<SearchSort>('AI_RECOMMENDED');
-  const [draft, setDraft] = useState('');
-  const [followUps, setFollowUps] = useState<string[]>([]);
   const [showAll, setShowAll] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
   useEffect(() => {
     setPlatform('ALL');
     setSort('AI_RECOMMENDED');
-    setDraft('');
-    setFollowUps([]);
     setShowAll(false);
     setSelectedProductId(null);
-  }, [keyword, results.content]);
+  }, [sessionId]);
+
+  const products = useMemo(() => recommendations ?? [], [recommendations]);
 
   const sortedProducts = useMemo(() => {
-    const filtered = results.content.filter((product) => platform === 'ALL' || product.platform === platform);
-    return [...filtered].sort((left, right) => {
-      if (sort === 'PRICE_ASC') return left.price - right.price;
-      if (sort === 'DISTANCE_ASC')
-        return (left.distanceKm ?? Number.POSITIVE_INFINITY) - (right.distanceKm ?? Number.POSITIVE_INFINITY);
-      return right.recommendationScore - left.recommendationScore;
-    });
-  }, [platform, results.content, sort]);
+    const filtered = products.filter((product) => platform === 'ALL' || product.platform === platform);
+    return [...filtered].sort((left, right) =>
+      sort === 'PRICE_ASC' ? left.price - right.price : left.rank - right.rank
+    );
+  }, [platform, products, sort]);
 
+  if (!sessionId) {
+    return (
+      <SearchPlaceholder
+        title="검색어를 먼저 알려주세요"
+        description="홈에서 찾고 싶은 물건과 조건을 적으면 AI가 매물을 찾아드려요."
+      />
+    );
+  }
+
+  if (session.isPending) {
+    return (
+      <section className="font-ds bg-ds-surface-sunken flex min-h-[60dvh] items-center justify-center px-4">
+        <p className="text-ds-text-subtle text-ds-body inline-flex items-center gap-2">
+          <LoaderCircle className="size-4 animate-spin" aria-hidden />
+          검색 결과를 불러오는 중이에요
+        </p>
+      </section>
+    );
+  }
+
+  if (session.isError) {
+    return <SearchPlaceholder title="검색을 불러오지 못했어요" description={getErrorMessage(session.error)} />;
+  }
+
+  const detail = session.data;
   const visibleProducts = showAll ? sortedProducts : sortedProducts.slice(0, 4);
-  const featuredProduct = results.content[0];
-  const maxSavingsRate = featuredProduct?.savingsRate ?? 0;
-
-  const sendFollowUp = (message: string) => {
-    const trimmed = message.trim();
-    if (!trimmed) return;
-    setFollowUps((previous) => [...previous, trimmed]);
-    setDraft('');
-  };
-
-  const submitFollowUp = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    sendFollowUp(draft);
-  };
-
+  const featuredProduct = products[0];
 
   return (
     <section className="font-ds bg-ds-surface-sunken px-3 py-4 sm:px-5 lg:px-6 lg:py-6">
@@ -396,7 +382,7 @@ export function SearchPage() {
             <div>
               <h1 className="text-ds-text text-ds-h-sm font-ds-bold">AI 구매 어시스턴스 고르밍</h1>
               <p className="text-ds-success-text text-ds-body-sm font-ds-medium mt-0.5 flex items-center gap-1.5">
-                <span className="bg-ds-success-border size-1.5 rounded-full" aria-hidden /> 3개 플랫폼 실시간 탐색 중
+                <span className="bg-ds-success-border size-1.5 rounded-full" aria-hidden /> 3개 플랫폼 탐색 완료
               </p>
             </div>
           </header>
@@ -404,7 +390,7 @@ export function SearchPage() {
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-5">
             <div className="flex justify-end">
               <div className="bg-ds-neutral-bold text-ds-text-inverse rounded-ds-lg text-ds-body max-w-[88%] px-3.5 py-2.5">
-                {keyword}
+                {detail.originalQuery}
               </div>
             </div>
 
@@ -413,38 +399,41 @@ export function SearchPage() {
               <div className="bg-ds-surface-hovered rounded-ds-lg min-w-0 flex-1 px-3.5 py-3">
                 <p className="text-ds-text text-ds-body font-ds-semibold">요청을 이렇게 이해했어요</p>
                 <div className="mt-2.5 flex flex-wrap gap-1.5">
-                  <Tag>{session.parsedConditions.keyword}</Tag>
-                  <Tag>30만원 이하</Tag>
-                  <Tag>중고 OK</Tag>
-                  <Tag>최고 가성비</Tag>
+                  {conditionTags(detail.parsedConditions).map((label) => (
+                    <Tag key={label}>{label}</Tag>
+                  ))}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-start gap-3">
-              <AssistantAvatar small />
-              <div className="bg-ds-surface-hovered text-ds-text text-ds-body rounded-ds-lg min-w-0 flex-1 px-3.5 py-3 leading-6">
-                당근·번개장터·중고나라에서 <strong className="font-ds-bold">{session.resultCount}개</strong> 매물을
-                찾았어요. Apple 공식 정가(₩299,000) 대비 최대{' '}
-                <strong className="text-ds-success-text font-ds-bold">{maxSavingsRate}% 저렴해요.</strong>
+            {/*
+              메시지에 발신 주체가 없다. 서버는 세션을 만들 때 AI 답변만 저장하므로
+              여기 오는 것은 모두 AI 쪽 발화다.
+            */}
+            {detail.messages.map((message) => (
+              <div key={message.id} className="flex items-start gap-3">
+                <AssistantAvatar small />
+                <div className="bg-ds-surface-hovered text-ds-text text-ds-body rounded-ds-lg min-w-0 flex-1 px-3.5 py-3 leading-6">
+                  {message.content}
+                </div>
               </div>
-            </div>
+            ))}
 
             {featuredProduct ? (
               <div className="flex items-start gap-3">
                 <AssistantAvatar small />
                 <div className="bg-ds-surface-hovered text-ds-text text-ds-body rounded-ds-lg min-w-0 flex-1 px-3.5 py-3 leading-6">
-                  <p>
-                    최저가는 아니지만{' '}
-                    <strong className="font-ds-bold">판매자 신뢰도(거래 {featuredProduct.sellerTrustScore}회)</strong>와
-                    상품 상태를 고려하면 이 매물을 추천해요.
-                  </p>
+                  {featuredProduct.recommendationReason ? (
+                    <p>{featuredProduct.recommendationReason}</p>
+                  ) : (
+                    <p>AI 추천 순위가 가장 높은 매물이에요.</p>
+                  )}
                   <div className="border-ds-border bg-ds-surface rounded-ds-md mt-3 flex items-center gap-3 border p-2.5">
                     <ProductThumbnail product={featuredProduct} size="compact" />
                     <div className="min-w-0">
                       <p className="text-ds-text text-ds-body font-ds-bold truncate">{featuredProduct.title}</p>
                       <p className="text-ds-text-subtle text-ds-body-sm mt-0.5">
-                        {PLATFORM_LABELS[featuredProduct.platform]} · {CONDITION_LABELS[featuredProduct.condition]}
+                        {PLATFORM_LABELS[featuredProduct.platform]}
                       </p>
                     </div>
                     <span className="text-ds-text text-ds-body font-ds-bold ml-auto shrink-0">
@@ -454,145 +443,133 @@ export function SearchPage() {
                 </div>
               </div>
             ) : null}
-
-            {followUps.map((message, index) => (
-              <div key={`${message}-${index}`} className="space-y-3">
-                <div className="flex justify-end">
-                  <div className="bg-ds-neutral-bold text-ds-text-inverse rounded-ds-lg text-ds-body max-w-[88%] px-3.5 py-2.5">
-                    {message}
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <AssistantAvatar small />
-                  <div className="bg-ds-surface-hovered text-ds-text text-ds-body rounded-ds-lg px-3.5 py-2.5 leading-6">
-                    {followUpReply(message)}
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            <div className="flex flex-wrap gap-1.5 pl-11">
-              {QUICK_QUESTIONS.map((question) => (
-                <button
-                  key={question}
-                  type="button"
-                  onClick={() => sendFollowUp(question)}
-                  className={`${BUTTON_BASE} border-ds-border text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text h-8 border px-3`}
-                >
-                  {question}
-                </button>
-              ))}
-            </div>
           </div>
 
-          <form onSubmit={submitFollowUp} className="border-ds-border border-t p-3 sm:p-4">
-            <div className="border-ds-border-input bg-ds-surface rounded-ds-sm focus-within:border-ds-border-focused focus-within:ring-ds-border-focused flex items-center gap-2 border p-1 transition-colors focus-within:ring-1">
+          {/*
+            추가 질문은 백엔드에 엔드포인트가 없다. 눌러도 아무 일이 없는 입력창을
+            열어두는 대신 왜 못 쓰는지 알린다.
+          */}
+          <div className="border-ds-border border-t p-3 sm:p-4">
+            <div className="border-ds-border-input bg-ds-surface-sunken rounded-ds-sm flex items-center gap-2 border p-1">
               <input
-                value={draft}
-                onChange={(event) => setDraft(event.target.value)}
-                placeholder="AI에게 더 물어보세요"
+                disabled
+                placeholder="추가 질문은 준비 중이에요"
                 aria-label="AI에게 추가 질문하기"
                 className="text-ds-text placeholder:text-ds-text-subtlest text-ds-body min-w-0 flex-1 bg-transparent px-2 py-1.5 outline-none"
               />
               <button
-                type="submit"
-                disabled={!draft.trim()}
+                type="button"
+                disabled
                 aria-label="추가 질문 보내기"
-                className={`${BUTTON_BASE} bg-ds-brand hover:bg-ds-brand-hovered active:bg-ds-brand-pressed text-ds-text-inverse disabled:bg-ds-neutral disabled:text-ds-text-disabled size-8 shrink-0 disabled:cursor-not-allowed`}
+                className={`${BUTTON_BASE} bg-ds-neutral text-ds-text-disabled size-8 shrink-0 cursor-not-allowed`}
               >
                 <Send className="size-4" aria-hidden />
               </button>
             </div>
-          </form>
+          </div>
         </aside>
 
         <div className="min-w-0 space-y-4">
-          <OfficialPriceCard
-            name={results.officialProduct.name}
-            officialStore={results.officialProduct.officialStore}
-            officialPrice={results.officialProduct.officialPrice}
-            officialUrl={results.officialProduct.officialUrl}
-            maxSavingsRate={maxSavingsRate}
-          />
-
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-ds-text text-ds-h-md font-ds-bold mr-1">
-                {results.totalElements}개의 <span className="text-ds-text-subtlest font-ds-regular">중고 매물</span>
-              </h2>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {PLATFORM_TABS.map((tab) => (
-                  <button
-                    key={tab.value}
-                    type="button"
-                    onClick={() => {
-                      setPlatform(tab.value);
-                      setShowAll(false);
-                    }}
-                    aria-pressed={platform === tab.value}
-                    className={`${BUTTON_BASE} h-8 border px-3 ${
-                      platform === tab.value
-                        ? 'border-ds-brand bg-ds-brand-subtlest text-ds-brand-text'
-                        : 'border-ds-border bg-ds-surface text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <Dropdown
-              value={sort}
-              options={SORT_OPTIONS}
-              onChange={setSort}
-              ariaLabel="정렬 기준"
-              className="w-full xl:w-44"
-            />
-          </div>
-
-          <div className="space-y-3">
-            {visibleProducts.map((product, index) => (
-              <ResultCard
-                key={product.productId}
-                product={product}
-                featured={index === 0 && platform === 'ALL' && sort === 'AI_RECOMMENDED'}
-                selected={selectedProductId === product.productId}
-                detailHref={`${productDetailPath(product.productId)}?q=${encodeURIComponent(keyword)}`}
-                onSelect={() => setSelectedProductId(product.productId)}
-              />
-            ))}
-          </div>
-
-          {visibleProducts.length === 0 ? (
+          {recommendations === undefined ? (
             <div className="rounded-ds-lg border-ds-border bg-ds-surface border border-dashed px-6 py-14 text-center">
               <Sparkles className="text-ds-text-subtlest mx-auto size-6" aria-hidden />
-              <p className="text-ds-text text-ds-h-sm font-ds-bold mt-3">조건에 맞는 매물이 없어요</p>
-              <p className="text-ds-text-subtle text-ds-body mt-1">다른 플랫폼이나 정렬 기준으로 다시 확인해 보세요.</p>
+              <p className="text-ds-text text-ds-h-sm font-ds-bold mt-3">매물 목록을 다시 불러올 수 없어요</p>
+              <p className="text-ds-text-subtle text-ds-body mt-1">
+                매물은 검색을 실행한 순간에만 받아옵니다. 같은 조건으로 다시 검색해주세요.
+              </p>
+              <Link
+                to={ROUTES.home}
+                className={`${BUTTON_BASE} bg-ds-brand hover:bg-ds-brand-hovered active:bg-ds-brand-pressed text-ds-text-inverse mt-5 h-9 px-4`}
+              >
+                <Search className="size-4" aria-hidden />
+                다시 검색하기
+              </Link>
             </div>
-          ) : null}
+          ) : (
+            <>
+              <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-ds-text text-ds-h-md font-ds-bold mr-1">
+                    {products.length}개의 <span className="text-ds-text-subtlest font-ds-regular">매물</span>
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {PLATFORM_TABS.map((tab) => (
+                      <button
+                        key={tab.value}
+                        type="button"
+                        onClick={() => {
+                          setPlatform(tab.value);
+                          setShowAll(false);
+                        }}
+                        aria-pressed={platform === tab.value}
+                        className={`${BUTTON_BASE} h-8 border px-3 ${
+                          platform === tab.value
+                            ? 'border-ds-brand bg-ds-brand-subtlest text-ds-brand-text'
+                            : 'border-ds-border bg-ds-surface text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-          {sortedProducts.length > 4 && !showAll ? (
-            <button
-              type="button"
-              onClick={() => setShowAll(true)}
-              className={`${BUTTON_BASE} border-ds-border bg-ds-surface text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text w-full border py-3`}
-            >
-              매물 더 보기 <ChevronDown className="size-4" aria-hidden />
-            </button>
-          ) : null}
+                <Dropdown
+                  value={sort}
+                  options={SORT_OPTIONS}
+                  onChange={setSort}
+                  ariaLabel="정렬 기준"
+                  className="w-full xl:w-44"
+                />
+              </div>
 
-          <div className="text-ds-text-subtlest text-ds-body-sm flex flex-wrap items-center justify-center gap-x-5 gap-y-2 py-2">
-            <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="size-3.5" aria-hidden /> 판매자 신뢰도 반영
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <ThumbsUp className="size-3.5" aria-hidden /> AI 추천 점수 반영
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <MapPin className="size-3.5" aria-hidden /> 거리 정보 반영
-            </span>
-          </div>
+              <div className="space-y-3">
+                {visibleProducts.map((product, index) => (
+                  <ResultCard
+                    key={product.productId ?? `rank-${product.rank}`}
+                    product={product}
+                    featured={index === 0 && platform === 'ALL' && sort === 'AI_RECOMMENDED'}
+                    selected={selectedProductId === product.productId}
+                    detailHref={
+                      product.productId
+                        ? `${productDetailPath(product.productId)}?q=${encodeURIComponent(detail.originalQuery)}`
+                        : null
+                    }
+                    onSelect={() => setSelectedProductId(product.productId)}
+                  />
+                ))}
+              </div>
+
+              {visibleProducts.length === 0 ? (
+                <div className="rounded-ds-lg border-ds-border bg-ds-surface border border-dashed px-6 py-14 text-center">
+                  <Sparkles className="text-ds-text-subtlest mx-auto size-6" aria-hidden />
+                  <p className="text-ds-text text-ds-h-sm font-ds-bold mt-3">조건에 맞는 매물이 없어요</p>
+                  <p className="text-ds-text-subtle text-ds-body mt-1">
+                    다른 플랫폼이나 정렬 기준으로 다시 확인해 보세요.
+                  </p>
+                </div>
+              ) : null}
+
+              {sortedProducts.length > 4 && !showAll ? (
+                <button
+                  type="button"
+                  onClick={() => setShowAll(true)}
+                  className={`${BUTTON_BASE} border-ds-border bg-ds-surface text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text w-full border py-3`}
+                >
+                  매물 더 보기 <ChevronDown className="size-4" aria-hidden />
+                </button>
+              ) : null}
+
+              <div className="text-ds-text-subtlest text-ds-body-sm flex flex-wrap items-center justify-center gap-x-5 gap-y-2 py-2">
+                <span className="inline-flex items-center gap-1.5">
+                  <ThumbsUp className="size-3.5" aria-hidden /> AI 추천 점수 반영
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Leaf className="size-3.5" aria-hidden /> 탄소 절감량 계산
+                </span>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </section>

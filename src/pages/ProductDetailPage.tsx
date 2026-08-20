@@ -17,12 +17,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 
-import type { Condition, Platform, SearchResultProduct } from '@/api/searches/search.schema';
+import type { Condition, Platform } from '@/api/searches/search.schema';
 import { recordPlatformRedirect, recordProductView } from '@/api/activities/activity.api';
 import { getErrorMessage } from '@/api/response';
 import { ROUTES, productDetailPath } from '@/app/routes';
 import { createMockProductDetail } from '@/features/products/product-detail.mock';
-import { createMockSearchData } from '@/features/search/search.mock';
+import { createMockSearchData, type MockSearchProduct } from '@/features/search/search.mock';
 import { userQueryKeys } from '@/queryFactory/userQueries';
 
 const CONDITION_LABELS: Record<Condition, string> = {
@@ -91,7 +91,7 @@ function RankBadge({ rank }: { rank: number }) {
   );
 }
 
-function RankedProductCard({ product, rank, query }: { product: SearchResultProduct; rank: number; query: string }) {
+function RankedProductCard({ product, rank, query }: { product: MockSearchProduct; rank: number; query: string }) {
   return (
     <Link
       to={`${productDetailPath(product.productId)}?q=${encodeURIComponent(query)}`}

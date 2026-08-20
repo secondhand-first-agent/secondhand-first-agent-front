@@ -1,8 +1,7 @@
-import type { SearchResultProduct } from '@/api/searches/search.schema';
-import { createMockSearchData } from '@/features/search/search.mock';
+import { createMockSearchData, type MockSearchProduct } from '@/features/search/search.mock';
 
 export interface MockProductDetail {
-  product: SearchResultProduct;
+  product: MockSearchProduct;
   description: string;
   viewCount: number;
   publishedAt: string;

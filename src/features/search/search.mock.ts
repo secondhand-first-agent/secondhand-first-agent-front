@@ -1,6 +1,63 @@
-import type { OfficialProduct, Platform, SearchResults, SearchSession } from '@/api/searches/search.schema';
+import type { Condition, Platform, SearchPriority } from '@/api/searches/search.schema';
 
-const officialProduct: OfficialProduct = {
+/*
+ * 상품 상세 화면 전용 목 데이터.
+ *
+ * 검색 화면은 실 API 로 옮겨 갔지만 상세 화면은 아직 목을 쓴다. 아래 타입들은
+ * 서버 계약이 아니라 이 목 데이터의 모양이므로 api/ 가 아니라 여기에 둔다.
+ * 서버 `SearchResultItemResponse` 에는 officialPrice·savings·distanceKm·
+ * sellerTrustScore 같은 필드가 없다.
+ */
+export interface MockOfficialProduct {
+  name: string;
+  officialStore: string;
+  officialPrice: number;
+  officialUrl: string;
+}
+
+export interface MockSearchProduct {
+  productId: string;
+  rank: number;
+  platform: Platform;
+  title: string;
+  price: number;
+  officialPrice: number;
+  savingsAmount: number;
+  savingsRate: number;
+  distanceKm: number | null;
+  condition: Condition;
+  tradeType: string[];
+  sellerTrustScore: number;
+  recommendationScore: number;
+  recommendationReason: string;
+  imageUrl: string | null;
+  changedSinceLastViewed: boolean;
+}
+
+export interface MockSearchResults {
+  officialProduct: MockOfficialProduct;
+  content: MockSearchProduct[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+}
+
+export interface MockSearchSession {
+  sessionId: string;
+  status: 'PROCESSING' | 'COMPLETED' | 'FAILED';
+  parsedConditions: {
+    keyword: string;
+    maxPrice: number | null;
+    condition: Condition[];
+    priority: SearchPriority;
+  };
+  assistantMessage: string;
+  resultCount: number;
+}
+
+const officialProduct: MockOfficialProduct = {
   name: 'AirPods Pro 2 (USB-C)',
   officialStore: 'Apple 공식 스토어',
   officialPrice: 299_000,
@@ -14,10 +71,22 @@ const seeds: Array<{
   condition: 'NEW' | 'LIKE_NEW' | 'LIGHTLY_USED' | 'USED';
   distanceKm: number | null;
 }> = [
-  { platform: 'NAVER_FLEAMARKET', title: 'AirPods Pro 2 (USB-C)', price: 180_000, condition: 'LIKE_NEW', distanceKm: 2.1 },
+  {
+    platform: 'NAVER_FLEAMARKET',
+    title: 'AirPods Pro 2 (USB-C)',
+    price: 180_000,
+    condition: 'LIKE_NEW',
+    distanceKm: 2.1,
+  },
   { platform: 'BUNJANG', title: 'AirPods Pro 2 (미개봉)', price: 165_000, condition: 'NEW', distanceKm: null },
   { platform: 'JOONGNA', title: '에어팟 프로2 판매합니다', price: 145_000, condition: 'USED', distanceKm: null },
-  { platform: 'NAVER_FLEAMARKET', title: '에어팟프로2 근처 판매', price: 195_000, condition: 'LIKE_NEW', distanceKm: 3.8 },
+  {
+    platform: 'NAVER_FLEAMARKET',
+    title: '에어팟프로2 근처 판매',
+    price: 195_000,
+    condition: 'LIKE_NEW',
+    distanceKm: 3.8,
+  },
   { platform: 'BUNJANG', title: '에어팟 프로 2세대 정품', price: 210_000, condition: 'LIGHTLY_USED', distanceKm: null },
   { platform: 'JOONGNA', title: 'AirPods Pro 2 급처분', price: 155_000, condition: 'LIGHTLY_USED', distanceKm: null },
 ];
@@ -48,7 +117,7 @@ const products = seeds.map((seed, index) => {
   };
 });
 
-export function createMockSearchData(query: string): { session: SearchSession; results: SearchResults } {
+export function createMockSearchData(query: string): { session: MockSearchSession; results: MockSearchResults } {
   return {
     session: {
       sessionId: 'mock_session_01',
