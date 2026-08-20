@@ -4,6 +4,7 @@ import {
   ExternalLink,
   Headphones,
   Heart,
+  Leaf,
   MapPin,
   PiggyBank,
   Send,
@@ -15,12 +16,13 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 
 import type { Condition, Platform, SearchResultProduct, SearchSort } from '@/api/searches/search.schema';
 import assistantAvatarUrl from '@/assets/image/cat-avatar.png';
 import { productDetailPath } from '@/app/routes';
 import { Dropdown } from '@/components/Dropdown';
+import { CARBON_SAVED_HINT, estimateCarbonSavedKg } from '@/features/products/carbon';
 import { createMockSearchData } from '@/features/search/search.mock';
 
 type PlatformFilter = 'ALL' | Platform;
@@ -96,14 +98,18 @@ function followUpReply(message: string) {
 function Lozenge({
   tone = 'gray',
   icon: Icon,
+  title,
   children,
 }: {
   tone?: LozengeTone;
   icon?: LucideIcon;
+  /** 숫자만으로 뜻이 안 통하는 배지에 붙이는 설명. */
+  title?: string;
   children: ReactNode;
 }) {
   return (
     <span
+      title={title}
       className={`rounded-ds-xs font-ds-bold inline-flex items-center gap-1 px-1.5 py-0.5 text-[11px] leading-4 ${LOZENGE_TONES[tone]}`}
     >
       {Icon ? <Icon className="size-3 shrink-0" aria-hidden /> : null}
@@ -162,6 +168,7 @@ function ResultCard({
   featured,
   favorite,
   selected,
+  detailHref,
   onToggleFavorite,
   onSelect,
 }: {
@@ -169,15 +176,29 @@ function ResultCard({
   featured: boolean;
   favorite: boolean;
   selected: boolean;
+  detailHref: string;
   onToggleFavorite: () => void;
   onSelect: () => void;
 }) {
+  const carbonSavedKg = estimateCarbonSavedKg(product.title);
+
   return (
     <article
-      className={`rounded-ds-lg bg-ds-surface overflow-hidden transition-shadow ${
+      className={`rounded-ds-lg bg-ds-surface hover:shadow-ds-overlay relative overflow-hidden transition-shadow ${
         featured ? 'border-ds-brand shadow-ds-raised border-2' : 'border-ds-border shadow-ds-raised border'
       }`}
     >
+      {/*
+        카드 전체를 상세로 가는 링크로 덮는다. 제목에 링크를 걸면 h3 의 truncate
+        (overflow:hidden) 가 넓혀둔 영역까지 잘라내서 카드 전체가 눌리지 않는다.
+        카드 안의 버튼들은 relative z-10 으로 이 덮개 위에 올린다.
+      */}
+      <Link
+        to={detailHref}
+        onClick={onSelect}
+        aria-label={`${product.title} 상세 보기`}
+        className="rounded-ds-lg focus-visible:outline-ds-border-focused absolute inset-0 focus-visible:outline-2 focus-visible:outline-offset-2"
+      />
       <div
         className={featured ? 'grid sm:grid-cols-[minmax(180px,0.55fr)_minmax(0,1.45fr)]' : 'flex gap-4 p-4 sm:gap-5'}
       >
@@ -230,7 +251,8 @@ function ResultCard({
                 정가 대비 {product.savingsRate}% 절약
               </p>
             </div>
-            <div className="flex shrink-0 items-center gap-2">
+            {/* 카드를 덮은 링크 위로 올려서 각자의 동작이 살아 있게 한다. */}
+            <div className="relative z-10 flex shrink-0 items-center gap-2">
               <button
                 type="button"
                 onClick={onToggleFavorite}
@@ -245,8 +267,8 @@ function ResultCard({
                 <Heart className="size-4" fill={favorite ? 'currentColor' : 'none'} aria-hidden />
               </button>
               {featured ? (
-                <button
-                  type="button"
+                <Link
+                  to={detailHref}
                   onClick={onSelect}
                   className={`${BUTTON_BASE} text-ds-text-inverse h-8 px-3 ${
                     selected
@@ -255,18 +277,21 @@ function ResultCard({
                   }`}
                 >
                   {selected ? '선택됨' : '상품 보기'}
-                </button>
+                </Link>
               ) : null}
             </div>
           </div>
 
-          {featured ? (
-            <div className="mt-3">
+          <div className="mt-3 flex flex-wrap items-center gap-1.5">
+            {featured ? (
               <Lozenge tone="green" icon={PiggyBank}>
                 정가 대비 {formatPrice(product.savingsAmount)} 절약
               </Lozenge>
-            </div>
-          ) : null}
+            ) : null}
+            <Lozenge tone="blue" icon={Leaf} title={CARBON_SAVED_HINT}>
+              탄소 약 {carbonSavedKg}kg 절감
+            </Lozenge>
+          </div>
         </div>
       </div>
     </article>
@@ -327,7 +352,6 @@ function OfficialPriceCard({
 }
 
 export function SearchPage() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const rawKeyword = searchParams.get('q')?.trim() ?? '';
   const keyword = rawKeyword || '30만원으로 에어팟 사고 싶어, 중고 괜찮아';
@@ -561,11 +585,9 @@ export function SearchPage() {
                 featured={index === 0 && platform === 'ALL' && sort === 'AI_RECOMMENDED'}
                 favorite={favoriteIds.has(product.productId)}
                 selected={selectedProductId === product.productId}
+                detailHref={`${productDetailPath(product.productId)}?q=${encodeURIComponent(keyword)}`}
                 onToggleFavorite={() => toggleFavorite(product.productId)}
-                onSelect={() => {
-                  setSelectedProductId(product.productId);
-                  navigate(`${productDetailPath(product.productId)}?q=${encodeURIComponent(keyword)}`);
-                }}
+                onSelect={() => setSelectedProductId(product.productId)}
               />
             ))}
           </div>

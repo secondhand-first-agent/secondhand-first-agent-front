@@ -231,32 +231,6 @@ const bestDeals: BestDealList = {
   ],
 };
 
-const registered = new Map<string, { password: string; profileImageUrl: string | null }>([
-  ['test@example.com', { password: 'test1234', profileImageUrl: null }],
-]);
-
-const STATE_KEY = 'msw:state';
-
-interface MockState {
-  email: string | null;
-  name: string;
-  regionId: string;
-  profileImageUrl: string | null;
-}
-
-function readState(): MockState {
-  const fallback: MockState = { email: null, name: '김혜준', regionId: '101', profileImageUrl: null };
-  try {
-    const raw = localStorage.getItem(STATE_KEY);
-    if (raw) return { ...fallback, ...(JSON.parse(raw) as Partial<MockState>) };
-  } catch {}
-  return fallback;
-}
-
-function writeState(patch: Partial<MockState>) {
-  localStorage.setItem(STATE_KEY, JSON.stringify({ ...readState(), ...patch }));
-}
-
 const isAuthed = (request: Request) => Boolean(request.headers.get('Authorization'));
 
 const regions = [
@@ -266,19 +240,6 @@ const regions = [
   { id: '104', name: '삼평동', district: '성남시 분당구' },
   { id: '201', name: '역삼동', district: '서울 강남구' },
 ];
-
-function currentProfile() {
-  const state = readState();
-  return {
-    id: '1',
-    name: state.name,
-    email: state.email ?? 'test@example.com',
-    profileImageUrl: state.profileImageUrl,
-    region: regions.find((r) => r.id === state.regionId) ?? regions[0],
-    joinedAt: '2026-03-02',
-    stats: { favoriteCount: 12, platformRedirectCount: 8, aiSearchCount: 27 },
-  };
-}
 
 const recentSearches = [
   { id: '1', keyword: '30만원으로 에어팟 사고 싶어, 중고 괜찮아', searchedAt: '2026-08-18T11:20:00.000Z' },
@@ -369,33 +330,15 @@ const redirectHistories: RedirectHistory[] = [
   },
 ];
 
+/**
+ * 아직 서버에 없는 API 만 여기서 흉내냅니다.
+ * 인증(`/auth/*`)과 프로필 조회·수정(`GET`, `PATCH /users/me`)은 핸들러가 없어서
+ * 실제 백엔드로 그대로 나갑니다(`onUnhandledRequest: 'bypass'`).
+ */
 export const handlers = [
   http.get('*/products/best-deals', () => HttpResponse.json(envelope(bestDeals))),
 
   http.get('*/products', () => HttpResponse.json(envelope(products))),
-
-  http.post('*/users/signup', async ({ request }) => {
-    const { email, password, profileImageUrl } = (await request.json()) as {
-      email: string;
-      password: string;
-      profileImageUrl?: string | null;
-    };
-    if (registered.has(email)) {
-      return HttpResponse.json({ message: '이미 가입된 이메일입니다' }, { status: 409 });
-    }
-    registered.set(email, { password, profileImageUrl: profileImageUrl ?? null });
-    return HttpResponse.json(envelope({ id: crypto.randomUUID(), email }), { status: 201 });
-  }),
-
-  http.post('*/users/login', async ({ request }) => {
-    const { email, password } = (await request.json()) as { email: string; password: string };
-    const account = registered.get(email);
-    if (!account || account.password !== password) {
-      return HttpResponse.json({ message: '이메일 또는 비밀번호가 올바르지 않습니다' }, { status: 401 });
-    }
-    writeState({ email, profileImageUrl: account.profileImageUrl });
-    return HttpResponse.json(envelope({ accessToken: 'mock-access-token', tokenType: 'Bearer', userId: 'u1' }));
-  }),
 
   http.get('*/regions', () => HttpResponse.json(envelope(regions))),
 
@@ -409,27 +352,9 @@ export const handlers = [
     return HttpResponse.json(envelope(redirectHistories));
   }),
 
-  http.get('*/users/me', ({ request }) => {
-    if (!isAuthed(request)) return unauthorized();
-    return HttpResponse.json(envelope(currentProfile()));
-  }),
-
-  http.patch('*/users/me', async ({ request }) => {
-    if (!isAuthed(request)) return unauthorized();
-    const body = (await request.json()) as { name?: string; regionId?: string; profileImageUrl?: string | null };
-    writeState({
-      ...(body.name !== undefined ? { name: body.name } : {}),
-      ...(body.regionId !== undefined ? { regionId: body.regionId } : {}),
-      ...(body.profileImageUrl !== undefined ? { profileImageUrl: body.profileImageUrl } : {}),
-    });
-    return HttpResponse.json(envelope(currentProfile()));
-  }),
-
+  // 회원 탈퇴는 아직 서버에 없어서 목으로 남겨둡니다.
   http.delete('*/users/me', ({ request }) => {
     if (!isAuthed(request)) return unauthorized();
-    localStorage.removeItem(STATE_KEY);
     return HttpResponse.json(envelope(null));
   }),
-
-  http.post('*/users/token/refresh', () => HttpResponse.json(envelope({ accessToken: 'mock-refreshed-token' }))),
 ];

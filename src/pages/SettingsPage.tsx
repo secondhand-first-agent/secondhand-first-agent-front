@@ -1,18 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Check, ChevronRight, MapPin } from 'lucide-react';
+import { ArrowLeft, ChevronRight, MapPin } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 
-import { clearSession } from '@/api/session';
 import { getErrorMessage } from '@/api/response';
 import { ROUTES } from '@/app/routes';
 import { FormAlert } from '@/components/FormAlert';
 import { ProfileImagePicker } from '@/components/ProfileImagePicker';
 import { SettingRow } from '@/components/SettingRow';
+import { PasswordChangeForm } from '@/features/auth/components/PasswordChangeForm';
+import { useLogoutMutation } from '@/hooks/useAuthMutations';
 import { useUpdateProfileMutation, useWithdrawMutation } from '@/hooks/useUserMutations';
 import { queryFactory } from '@/queryFactory';
 
-type EditingField = 'name' | 'region' | null;
+type EditingField = 'name' | 'password' | null;
+
+/** 아직 서버가 지원하지 않는 항목에 붙입니다. */
+function ComingSoon() {
+  return <span className="text-ds-body text-ds-text-subtlest shrink-0 px-1">준비 중</span>;
+}
 
 function ChangeButton({ onClick, children = '변경' }: { onClick: () => void; children?: string }) {
   return (
@@ -33,9 +39,9 @@ function SectionTitle({ children }: { children: string }) {
 export function SettingsPage() {
   const navigate = useNavigate();
   const { data: me, isPending, isError, error } = useQuery(queryFactory.users.me());
-  const regions = useQuery(queryFactory.users.regions());
   const updateProfile = useUpdateProfileMutation();
   const withdrawMutation = useWithdrawMutation();
+  const logoutMutation = useLogoutMutation();
 
   const [editing, setEditing] = useState<EditingField>(null);
   const [nameDraft, setNameDraft] = useState('');
@@ -50,13 +56,8 @@ export function SettingsPage() {
     updateProfile.mutate({ name: nameDraft.trim() }, { onSuccess: close });
   };
 
-  const saveRegion = (regionId: string) => {
-    updateProfile.mutate({ regionId }, { onSuccess: close });
-  };
-
   const onLogout = () => {
-    clearSession();
-    navigate(ROUTES.home, { replace: true });
+    logoutMutation.mutate();
   };
 
   const onWithdraw = () => {
@@ -89,7 +90,7 @@ export function SettingsPage() {
             <ProfileImagePicker
               name={me.name}
               value={me.profileImageUrl}
-              onChange={(profileImageUrl) => updateProfile.mutate({ profileImageUrl })}
+              onChange={(profileImageUrl) => updateProfile.mutate({ name: me.name, profileImageUrl })}
               disabled={updateProfile.isPending}
             />
           </div>
@@ -144,65 +145,20 @@ export function SettingsPage() {
           label="위치"
           leading={<MapPin className="text-ds-text-subtlest size-4" aria-hidden />}
           description={me.region ? `${me.region.name}, ${me.region.district}` : '설정되지 않음'}
-          action={editing === 'region' ? null : <ChangeButton onClick={() => setEditing('region')} />}
-        >
-          {editing === 'region' ? (
-            <div className="mt-3">
-              <p className="text-ds-body-sm text-ds-text-subtle mb-2">활동 지역을 선택하세요</p>
-              {regions.isPending ? (
-                <p className="text-ds-body text-ds-text-subtlest">불러오는 중…</p>
-              ) : regions.isError ? (
-                <p className="text-ds-body text-ds-danger-text">{getErrorMessage(regions.error)}</p>
-              ) : (
-                <ul className="rounded-ds-md border-ds-border divide-y divide-gray-100 overflow-hidden border">
-                  {regions.data.map((region) => {
-                    const selected = region.id === me.region?.id;
-                    return (
-                      <li key={region.id}>
-                        <button
-                          type="button"
-                          onClick={() => saveRegion(region.id)}
-                          disabled={updateProfile.isPending}
-                          aria-current={selected || undefined}
-                          className={`text-ds-body flex w-full items-center justify-between px-4 py-3 text-left transition-colors ${
-                            selected
-                              ? 'bg-brand/5 font-ds-medium text-ds-text'
-                              : 'text-ds-text-subtle hover:bg-ds-surface-sunken'
-                          }`}
-                        >
-                          {region.name} · {region.district}
-                          {selected ? <Check className="text-ds-brand size-4" aria-hidden /> : null}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-              <div className="mt-3 flex justify-end">
-                <button
-                  type="button"
-                  onClick={close}
-                  className="text-ds-body text-ds-text-subtle hover:text-ds-text px-3 py-1.5"
-                >
-                  취소
-                </button>
-              </div>
-            </div>
-          ) : null}
-        </SettingRow>
+          action={<ComingSoon />}
+        />
       </section>
 
       <SectionTitle>계정</SectionTitle>
       <section className="rounded-ds-lg border-ds-border bg-ds-surface divide-y divide-gray-100 border">
-        <SettingRow
-          label="이메일"
-          description={me.email}
-          action={<span className="text-ds-body text-ds-text-subtlest shrink-0 px-1">준비 중</span>}
-        />
+        <SettingRow label="이메일" description={me.email} action={<ComingSoon />} />
+
         <SettingRow
           label="비밀번호"
-          action={<span className="text-ds-body text-ds-text-subtlest shrink-0 px-1">준비 중</span>}
-        />
+          action={editing === 'password' ? null : <ChangeButton onClick={() => setEditing('password')} />}
+        >
+          {editing === 'password' ? <PasswordChangeForm onClose={close} /> : null}
+        </SettingRow>
       </section>
 
       <SectionTitle>계정 관리</SectionTitle>

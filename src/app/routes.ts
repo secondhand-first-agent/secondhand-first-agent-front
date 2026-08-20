@@ -11,6 +11,8 @@ export const ROUTES = {
   productDetail: '/products/:productId',
   login: '/login',
   signup: '/signup',
+  terms: '/terms',
+  privacy: '/privacy',
 } as const;
 
 export function productDetailPath(productId: string) {

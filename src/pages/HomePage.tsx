@@ -164,7 +164,7 @@ export function HomePage() {
       <section ref={heroRef} className="bg-ds-surface-sunken relative flex min-h-[calc(100dvh-3.5rem)] items-center">
         <div className="mx-auto w-full max-w-4xl px-4 pt-16 pb-28 text-center">
           <h1 className="text-ds-text text-ds-h-2xl font-ds-bold relative">
-            Secondhand First에서{' '}
+            고르밍에서{' '}
             <span
               className="relative -mb-1 inline-block overflow-hidden pb-1 align-bottom transition-[width] duration-300 ease-out motion-reduce:transition-none"
               style={slotWidth === undefined ? undefined : { width: slotWidth }}

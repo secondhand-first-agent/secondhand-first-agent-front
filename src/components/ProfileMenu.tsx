@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 
-import { clearSession } from '@/api/session';
 import { Avatar } from '@/components/Avatar';
 import { ROUTES } from '@/app/routes';
+import { useLogoutMutation } from '@/hooks/useAuthMutations';
 import { queryFactory } from '@/queryFactory';
 
 const MENU_ITEMS = [
@@ -17,8 +17,8 @@ const MENU_ITEMS = [
 export function ProfileMenu() {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
   const { data: me } = useQuery(queryFactory.users.me());
+  const logoutMutation = useLogoutMutation();
 
   useEffect(() => {
     if (!open) return;
@@ -42,8 +42,7 @@ export function ProfileMenu() {
 
   const onLogout = () => {
     setOpen(false);
-    clearSession();
-    navigate(ROUTES.home, { replace: true });
+    logoutMutation.mutate();
   };
 
   return (
@@ -88,6 +87,7 @@ export function ProfileMenu() {
               type="button"
               role="menuitem"
               onClick={onLogout}
+              disabled={logoutMutation.isPending}
               className="text-ds-danger-text hover:bg-ds-danger-bg text-ds-body block w-full px-3 py-1.5 text-left transition-colors"
             >
               로그아웃

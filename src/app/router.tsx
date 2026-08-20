@@ -10,12 +10,14 @@ import { HistoryPage } from '@/pages/HistoryPage';
 import { HowItWorksPage } from '@/pages/HowItWorksPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
+import { PrivacyPage } from '@/pages/PrivacyPage';
 import { ProductListPage } from '@/pages/ProductListPage';
 import { ProductDetailPage } from '@/pages/ProductDetailPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { SearchPage } from '@/pages/SearchPage';
 import { SignupPage } from '@/pages/SignupPage';
+import { TermsPage } from '@/pages/TermsPage';
 
 const COMING_SOON = [{ path: ROUTES.wishlist, title: '찜 목록' }];
 
@@ -33,6 +35,8 @@ export const router = createBrowserRouter([
       { path: ROUTES.products, Component: ProductListPage },
       { path: ROUTES.profile, Component: ProfilePage },
       { path: ROUTES.settings, Component: SettingsPage },
+      { path: ROUTES.terms, Component: TermsPage },
+      { path: ROUTES.privacy, Component: PrivacyPage },
       ...COMING_SOON.map(({ path, title }) => ({
         path,
         element: <ComingSoonPage title={title} />,

@@ -7,6 +7,8 @@ export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8
 
 let refreshPromise: Promise<string> | null = null;
 
+const CREDENTIAL_ENDPOINTS: string[] = [ENDPOINTS.auth.login, ENDPOINTS.auth.password, ENDPOINTS.auth.refresh];
+
 interface RetriableConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
@@ -60,9 +62,10 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as RetriableConfig | undefined;
     const status = error.response?.status;
-    const isRefreshRequest = originalRequest?.url?.includes(ENDPOINTS.auth.refresh);
+    const url = originalRequest?.url ?? '';
+    const isCredentialRequest = CREDENTIAL_ENDPOINTS.some((endpoint) => url.includes(endpoint));
 
-    if (status !== 401 || !originalRequest || originalRequest._retry || isRefreshRequest) {
+    if (status !== 401 || !originalRequest || originalRequest._retry || isCredentialRequest) {
       return Promise.reject(error);
     }
 

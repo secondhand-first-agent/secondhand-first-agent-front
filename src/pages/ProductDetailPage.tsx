@@ -14,12 +14,13 @@ import {
   Thermometer,
   type LucideIcon,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 
 import type { Condition, Platform, SearchResultProduct } from '@/api/searches/search.schema';
 import { ROUTES, productDetailPath } from '@/app/routes';
 import { createMockProductDetail } from '@/features/products/product-detail.mock';
+import { recordCarbonProductView } from '@/features/rewards/carbonQuest';
 import { createMockSearchData } from '@/features/search/search.mock';
 
 const CONDITION_LABELS: Record<Condition, string> = {
@@ -114,6 +115,15 @@ export function ProductDetailPage() {
   const rankedProducts = useMemo(() => createMockSearchData(query).results.content.slice(0, 3), [query]);
   const [isFavorite, setIsFavorite] = useState(detail?.product.isFavorite ?? false);
   const [activePhoto, setActivePhoto] = useState(0);
+
+  /*
+   * 탄소 절감 미션 진행도를 쌓는다. 지금은 모든 상품에 탄소 절감 태그가 붙으므로
+   * 상세를 연 것만으로 조건을 만족한다. 태그가 붙는 조건이 생기면 여기서 가려내면 된다.
+   */
+  useEffect(() => {
+    if (!detail) return;
+    recordCarbonProductView(productId);
+  }, [detail, productId]);
 
   if (!detail) {
     return (

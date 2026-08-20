@@ -2,10 +2,12 @@ import { ArrowLeft } from 'lucide-react';
 import { Link, Outlet } from 'react-router';
 
 import { ROUTES } from './routes';
+import { ScrollToTop } from './ScrollToTop';
 
 export function AuthLayout() {
   return (
     <div className="font-ds bg-ds-surface flex min-h-dvh flex-col">
+      <ScrollToTop />
       <header className="border-ds-border border-b">
         <div className="mx-auto flex h-14 max-w-5xl items-center px-4">
           <Link

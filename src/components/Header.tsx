@@ -1,6 +1,6 @@
-import { Recycle } from 'lucide-react';
 import { Link, NavLink } from 'react-router';
 
+import logo from '@/assets/image/face.png';
 import { ROUTES } from '@/app/routes';
 import { ProfileMenu } from '@/components/ProfileMenu';
 import { useSession } from '@/hooks/useSession';
@@ -24,8 +24,8 @@ export function Header() {
     <header className="font-ds border-ds-border bg-ds-surface sticky top-0 z-10 border-b">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4">
         <Link to={ROUTES.home} className="flex min-w-0 items-center gap-2">
-          <Recycle className="text-ds-brand size-5 shrink-0" aria-hidden />
-          <span className="text-ds-text text-ds-h-sm font-ds-bold truncate">Secondhand First</span>
+          <img src={logo} alt="" aria-hidden className="size-7 shrink-0 object-contain" />
+          <span className="text-ds-text text-ds-h-sm font-ds-bold truncate">고르밍</span>
         </Link>
 
         {/* 좁은 화면에서는 아래 줄로 내려간다. */}

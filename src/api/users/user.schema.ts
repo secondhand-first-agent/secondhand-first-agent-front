@@ -12,15 +12,31 @@ export const userStatsSchema = z.object({
   aiSearchCount: z.number().int().nonnegative(),
 });
 
-export const meSchema = z.object({
-  id: z.coerce.string(),
-  name: z.string(),
-  email: z.email(),
-  profileImageUrl: z.string().nullable(),
-  region: regionSchema.nullable(),
-  joinedAt: z.iso.date(),
-  stats: userStatsSchema,
-});
+const EMPTY_STATS = { favoriteCount: 0, platformRedirectCount: 0, aiSearchCount: 0 };
+
+/**
+ * 서버 응답(`GET /users/me`)을 화면이 쓰는 형태로 변환합니다.
+ * `region` / `stats` 는 아직 서버에 없어서 기본값으로 채웁니다.
+ */
+export const meSchema = z
+  .object({
+    userId: z.coerce.string(),
+    name: z.string(),
+    email: z.email(),
+    profileImageUrl: z.string().nullable().optional(),
+    createdAt: z.string(),
+    region: regionSchema.nullable().optional(),
+    stats: userStatsSchema.optional(),
+  })
+  .transform((user) => ({
+    id: user.userId,
+    name: user.name,
+    email: user.email,
+    profileImageUrl: user.profileImageUrl ?? null,
+    region: user.region ?? null,
+    joinedAt: user.createdAt.slice(0, 10),
+    stats: user.stats ?? EMPTY_STATS,
+  }));
 
 export const recentSearchSchema = z.object({
   id: z.coerce.string(),
@@ -29,8 +45,7 @@ export const recentSearchSchema = z.object({
 });
 
 export const updateProfileSchema = z.object({
-  name: z.string().min(1, '이름을 입력해주세요').max(20, '이름은 20자를 넘을 수 없습니다').optional(),
-  regionId: z.string().optional(),
+  name: z.string().trim().min(1, '이름을 입력해주세요').max(20, '이름은 20자를 넘을 수 없습니다'),
   profileImageUrl: z.string().nullable().optional(),
 });
 

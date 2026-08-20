@@ -191,8 +191,8 @@ export function HistoryPage() {
         <div className="rounded-ds-lg bg-ds-surface-hovered text-ds-body text-ds-text-subtle sm:text-ds-body-lg mt-7 flex items-start gap-3 px-5 py-4 leading-6 sm:px-6">
           <Info className="text-ds-text-subtle mt-0.5 size-5 shrink-0" aria-hidden />
           <p className="min-w-0">
-            Secondhand First는 매물 탐색과 비교만 도와드려요. 채팅, 결제, 거래는 당근마켓·번개장터·중고나라 등 각
-            플랫폼에서 직접 진행돼요.
+            고르밍은 매물 탐색과 비교만 도와드려요. 채팅, 결제, 거래는 당근마켓·번개장터·중고나라 등 각 플랫폼에서 직접
+            진행돼요.
           </p>
         </div>
 

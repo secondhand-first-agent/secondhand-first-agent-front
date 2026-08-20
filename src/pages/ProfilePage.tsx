@@ -6,6 +6,7 @@ import { getErrorMessage } from '@/api/response';
 import type { Me } from '@/api/users/user.schema';
 import { ROUTES } from '@/app/routes';
 import { Avatar } from '@/components/Avatar';
+import { CarbonQuestCard } from '@/features/rewards/components/CarbonQuestCard';
 import { queryFactory } from '@/queryFactory';
 
 function formatJoinedAt(joinedAt: string) {
@@ -57,6 +58,8 @@ export function ProfilePage() {
         <StatCard label="플랫폼 이동" value={`${me.stats.platformRedirectCount}회`} />
         <StatCard label="AI 검색 횟수" value={`${me.stats.aiSearchCount}회`} />
       </section>
+
+      <CarbonQuestCard />
 
       <section className="rounded-ds-lg border-ds-border bg-ds-surface border">
         <h2 className="border-ds-border text-ds-body font-ds-semibold text-ds-text border-b px-6 py-4">최근 검색</h2>

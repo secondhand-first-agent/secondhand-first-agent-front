@@ -1,6 +1,7 @@
-import { ArrowRight, Check, ExternalLink, MessageCircle, Search, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { ArrowRight, Check, ExternalLink, Headphones, MessageCircle, Send, SlidersHorizontal } from 'lucide-react';
 import { Link } from 'react-router';
 
+import assistantAvatarUrl from '@/assets/image/cat-avatar.png';
 import { ROUTES } from '@/app/routes';
 import { Reveal } from '@/components/Reveal';
 
@@ -42,6 +43,30 @@ const TIPS = [
     description: '추천 결과를 보고 가격이 괜찮은지, 어떤 점을 확인할지 다시 물어볼 수 있어요.',
   },
 ];
+
+/** 아래 미리보기에 쓰는 값들. 실제 검색 화면이 보여주는 것과 같은 형태로 맞춰 둔다. */
+const PREVIEW_CONDITIONS = ['에어팟 프로', '30만원 이하', '중고 OK', '최고 가성비'];
+const PREVIEW_QUESTIONS = ['미개봉만 보여줘', '더 저렴한 것도', '판교 근처만'];
+
+/** 검색 화면과 같은 어시스턴트 아바타. 이미지에 원형 배경이 그려져 있어 원으로 잘라낸다. */
+function AssistantAvatar({ small = false }: { small?: boolean }) {
+  return (
+    <img
+      src={assistantAvatarUrl}
+      alt=""
+      className={`shrink-0 rounded-full object-cover ${small ? 'size-8' : 'size-10'}`}
+    />
+  );
+}
+
+/** 검색 화면의 조건 태그와 같은 모양. */
+function PreviewTag({ children }: { children: string }) {
+  return (
+    <span className="border-ds-border bg-ds-surface text-ds-text-subtle rounded-ds-sm text-ds-body font-ds-medium inline-flex items-center border px-2 py-1">
+      {children}
+    </span>
+  );
+}
 
 /**
  * 이용 방법 본문. 이용 방법 페이지와 홈이 같은 내용을 보여주므로 한 곳에서 관리한다.
@@ -139,49 +164,80 @@ export function HowItWorksSections({ withCallToAction = true }: { withCallToActi
             </p>
           </Reveal>
 
-          <Reveal delay={150} className="rounded-ds-lg bg-ds-surface shadow-ds-overlay p-4 sm:p-5">
-            <div className="border-ds-border flex items-center gap-2 border-b px-2 pb-4">
-              <span className="bg-ds-brand text-ds-text-inverse flex size-8 items-center justify-center rounded-full">
-                <Sparkles className="size-4" aria-hidden />
-              </span>
+          {/* 실제 검색 화면의 어시스턴트 패널을 그대로 축소해 보여준다. */}
+          <Reveal delay={150} className="rounded-ds-lg bg-ds-surface shadow-ds-overlay overflow-hidden">
+            <div className="border-ds-border flex items-center gap-3 border-b px-4 py-4">
+              <AssistantAvatar />
               <div>
-                <p className="text-ds-body font-ds-semibold text-ds-text">Secondhand First</p>
-                <p className="text-ds-body-sm text-ds-text-subtlest">중고 딜 어시스턴트</p>
+                <p className="text-ds-text text-ds-h-sm font-ds-bold">AI 구매 어시스턴스 고르밍</p>
+                <p className="text-ds-success-text text-ds-body-sm font-ds-medium mt-0.5 flex items-center gap-1.5">
+                  <span className="bg-ds-success-border size-1.5 rounded-full" aria-hidden />
+                  3개 플랫폼 실시간 탐색 중
+                </p>
               </div>
             </div>
 
-            <div className="space-y-3 px-2 py-5">
-              <div className="rounded-ds-lg bg-ds-surface-hovered text-ds-body text-ds-text-subtle ml-auto max-w-[85%] rounded-tr-sm px-4 py-3 leading-6">
-                30만원으로 에어팟 프로 사고 싶어. 중고 괜찮아.
-              </div>
-              <div className="rounded-ds-lg bg-ds-success-bg text-ds-body text-ds-text-subtle max-w-[92%] rounded-tl-sm px-4 py-3.5 leading-6">
-                <p>예산에 맞는 매물 3개를 찾았어요.</p>
-                <div className="mt-3 space-y-2">
-                  {[
-                    '에어팟 프로 2세대 · 185,000원',
-                    '에어팟 프로 2 USB-C · 230,000원',
-                    '에어팟 프로 2 미개봉 · 295,000원',
-                  ].map((item, index) => (
-                    <div
-                      key={item}
-                      className="rounded-ds-md bg-ds-surface text-ds-body-sm flex items-center gap-2 px-3 py-2.5"
-                    >
-                      <span className="bg-ds-brand text-ds-text-inverse flex size-4 shrink-0 items-center justify-center rounded-full">
-                        <Check className="size-2.5" strokeWidth={3} aria-hidden />
-                      </span>
-                      <span className="text-ds-text-subtle">{item}</span>
-                      {index === 0 ? (
-                        <span className="text-ds-brand font-ds-semibold ml-auto shrink-0">추천</span>
-                      ) : null}
-                    </div>
-                  ))}
+            <div className="space-y-4 px-4 py-5">
+              <div className="flex justify-end">
+                <div className="bg-ds-neutral-bold text-ds-text-inverse rounded-ds-lg text-ds-body max-w-[88%] px-3.5 py-2.5">
+                  30만원으로 에어팟 프로 사고 싶어. 중고 괜찮아.
                 </div>
               </div>
+
+              <div className="flex items-start gap-3">
+                <AssistantAvatar small />
+                <div className="bg-ds-surface-hovered rounded-ds-lg min-w-0 flex-1 px-3.5 py-3">
+                  <p className="text-ds-text text-ds-body font-ds-semibold">요청을 이렇게 이해했어요</p>
+                  <div className="mt-2.5 flex flex-wrap gap-1.5">
+                    {PREVIEW_CONDITIONS.map((condition) => (
+                      <PreviewTag key={condition}>{condition}</PreviewTag>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <AssistantAvatar small />
+                <div className="bg-ds-surface-hovered text-ds-text text-ds-body rounded-ds-lg min-w-0 flex-1 px-3.5 py-3 leading-6">
+                  <p>
+                    당근·번개장터·중고나라에서 <strong className="font-ds-bold">3개</strong> 매물을 찾았어요. Apple 공식
+                    정가(₩299,000) 대비 최대{' '}
+                    <strong className="text-ds-success-text font-ds-bold">38% 저렴해요.</strong>
+                  </p>
+                  <div className="border-ds-border bg-ds-surface rounded-ds-md mt-3 flex items-center gap-3 border p-2.5">
+                    <div className="bg-ds-surface-hovered rounded-ds-md flex size-14 shrink-0 items-center justify-center">
+                      <Headphones className="text-ds-text-subtlest size-7" strokeWidth={1.2} aria-hidden />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-ds-text text-ds-body font-ds-bold truncate">에어팟 프로 2세대</p>
+                      <p className="text-ds-text-subtle text-ds-body-sm mt-0.5">당근마켓 · 거의 새것</p>
+                    </div>
+                    <span className="text-ds-text text-ds-body font-ds-bold ml-auto shrink-0">₩185,000</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5 pl-11">
+                {PREVIEW_QUESTIONS.map((question) => (
+                  <span
+                    key={question}
+                    className="border-ds-border text-ds-text-subtle rounded-ds-sm text-ds-body font-ds-medium inline-flex h-8 items-center border px-3"
+                  >
+                    {question}
+                  </span>
+                ))}
+              </div>
             </div>
 
-            <div className="rounded-ds-lg border-ds-border text-ds-body-sm text-ds-text-subtlest flex items-center gap-2 border px-3 py-2.5">
-              <Search className="size-3.5" aria-hidden />
-              <span>궁금한 조건을 더 물어보세요</span>
+            <div className="border-ds-border border-t p-3">
+              <div className="border-ds-border-input rounded-ds-sm flex items-center gap-2 border p-1">
+                <span className="text-ds-text-subtlest text-ds-body min-w-0 flex-1 px-2 py-1.5">
+                  AI에게 더 물어보세요
+                </span>
+                <span className="bg-ds-brand text-ds-text-inverse rounded-ds-sm inline-flex size-8 shrink-0 items-center justify-center">
+                  <Send className="size-4" aria-hidden />
+                </span>
+              </div>
             </div>
           </Reveal>
         </div>

@@ -7,6 +7,7 @@ import { ROUTES } from '@/app/routes';
 import { loginFormSchema, type LoginFormValues } from '@/api/auth/auth.schema';
 import { useLoginMutation } from '@/hooks/useAuthMutations';
 import { Button } from '@/components/Button';
+import { CheckboxField } from '@/components/CheckboxField';
 import { FormAlert } from '@/components/FormAlert';
 import { PasswordField } from '@/components/PasswordField';
 import { TextField } from '@/components/TextField';
@@ -21,6 +22,7 @@ export function LoginPage() {
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     mode: 'onBlur',
+    defaultValues: { rememberMe: false },
   });
 
   const onSubmit = handleSubmit((values) => {
@@ -52,6 +54,8 @@ export function LoginPage() {
           error={errors.password?.message}
           {...register('password')}
         />
+
+        <CheckboxField label="로그인 상태 유지" {...register('rememberMe')} />
 
         <Button type="submit" className="mt-4" isLoading={loginMutation.isPending}>
           로그인
