@@ -1,14 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
 import {
+  Armchair,
+  BookOpen,
+  Dumbbell,
   Gamepad2,
+  Gem,
   Headphones,
   Laptop,
   LoaderCircle,
   Monitor,
   Medal,
+  Package,
   PiggyBank,
   RefreshCw,
+  Shirt,
+  ShoppingBag,
   Smartphone,
+  Tablet,
   Trophy,
   Watch,
   type LucideIcon,
@@ -25,12 +33,32 @@ import { queryFactory } from '@/queryFactory';
 
 type CategoryFilter = BestDealCategoryFilter;
 
+/** 카테고리별 이름과 아이콘. 필터 칩과 썸네일 대체 아이콘이 같은 표를 쓴다. */
+const CATEGORIES: Record<BestDealCategory, { label: string; Icon: LucideIcon }> = {
+  EARPHONES: { label: '이어폰', Icon: Headphones },
+  LAPTOP: { label: '노트북', Icon: Laptop },
+  SMARTPHONE: { label: '스마트폰', Icon: Smartphone },
+  SMARTWATCH: { label: '스마트워치', Icon: Watch },
+  TABLET: { label: '태블릿', Icon: Tablet },
+  MONITOR: { label: '모니터', Icon: Monitor },
+  GAME_CONSOLE: { label: '게임기', Icon: Gamepad2 },
+  CLOTHING: { label: '의류', Icon: Shirt },
+  BAG_SHOES: { label: '가방·신발', Icon: ShoppingBag },
+  FURNITURE: { label: '가구', Icon: Armchair },
+  SPORTS_TOYS: { label: '스포츠·완구', Icon: Dumbbell },
+  BOOKS: { label: '도서', Icon: BookOpen },
+  WATCH_JEWELRY: { label: '시계·주얼리', Icon: Gem },
+  OTHER: { label: '기타', Icon: Package },
+};
+
+/** OTHER 는 "분류하지 못함" 이라 필터로 두지 않는다. */
+const FILTERABLE_CATEGORIES = (Object.keys(CATEGORIES) as BestDealCategory[]).filter(
+  (category): category is Exclude<BestDealCategory, 'OTHER'> => category !== 'OTHER'
+);
+
 const CATEGORY_FILTERS: Array<{ value: CategoryFilter; label: string; Icon?: LucideIcon }> = [
   { value: 'ALL', label: '전체' },
-  { value: 'EARPHONES', label: '이어폰', Icon: Headphones },
-  { value: 'LAPTOP', label: '노트북', Icon: Laptop },
-  { value: 'SMARTPHONE', label: '스마트폰', Icon: Smartphone },
-  { value: 'SMARTWATCH', label: '스마트워치', Icon: Watch },
+  ...FILTERABLE_CATEGORIES.map((value) => ({ value, ...CATEGORIES[value] })),
 ];
 
 const CONDITION_LABELS: Record<BestDeal['condition'], string> = {
@@ -65,14 +93,13 @@ function formatPrice(price: number) {
   return `₩${price.toLocaleString('ko-KR')}`;
 }
 
+/** 카테고리를 못 받았을 때를 대비해 제목에서 한 번 더 짚어 본다. */
 function getCategoryIcon(category: BestDealCategory, title: string): LucideIcon {
+  if (category !== 'OTHER') return CATEGORIES[category].Icon;
   if (title.includes('모니터')) return Monitor;
-  if (title.includes('스위치')) return Gamepad2;
-  if (category === 'EARPHONES') return Headphones;
-  if (category === 'LAPTOP') return Laptop;
-  if (category === 'SMARTPHONE') return Smartphone;
-  if (category === 'SMARTWATCH') return Watch;
-  return Gamepad2;
+  if (title.includes('스위치') || title.includes('플레이스테이션')) return Gamepad2;
+  if (title.includes('노트북') || title.includes('맥북')) return Laptop;
+  return CATEGORIES.OTHER.Icon;
 }
 
 const SORT_OPTIONS: Array<{ value: BestDealSort; label: string }> = [

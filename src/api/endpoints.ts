@@ -25,6 +25,7 @@ export const ENDPOINTS = {
   },
   searches: {
     sessions: '/search-sessions',
+    session: (sessionId: string) => `/search-sessions/${sessionId}`,
     recent: '/users/me/search-sessions',
   },
   activities: {

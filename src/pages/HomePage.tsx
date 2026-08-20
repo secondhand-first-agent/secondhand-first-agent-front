@@ -1,9 +1,12 @@
-import { ArrowRight, ChevronDown, Headphones, Laptop, Search, Smartphone, Watch } from 'lucide-react';
+import { ArrowRight, ChevronDown, Headphones, Laptop, LoaderCircle, Search, Smartphone, Watch } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
 
+import { getErrorMessage } from '@/api/response';
 import { ROUTES } from '@/app/routes';
 import { HowItWorksSections } from '@/features/howItWorks/components/HowItWorksSections';
+import { useCreateSearchSessionMutation } from '@/hooks/useSearchMutations';
+import { useSession } from '@/hooks/useSession';
 
 const SUGGESTIONS = [
   { icon: Headphones, label: '에어팟 프로2' },
@@ -52,6 +55,8 @@ const ROTATING_PHRASES = ROTATING_KEYWORDS.map((keyword) => `${keyword}${objectP
 
 export function HomePage() {
   const navigate = useNavigate();
+  const { isLoggedIn } = useSession();
+  const createSearchSession = useCreateSearchSessionMutation();
   const [phraseIndex, setPhraseIndex] = useState(0);
   const heroRef = useRef<HTMLElement>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
@@ -147,10 +152,26 @@ export function HomePage() {
     return () => window.clearInterval(timer);
   }, []);
 
+  /**
+   * 검색 세션을 만들고 그 세션의 검색 화면으로 넘어간다.
+   *
+   * 백엔드가 AI 서버를 부르고 결과까지 저장한 뒤 응답하므로 여기서 수 초를 기다린다.
+   * 세션 생성은 로그인이 필요해서, 비로그인 상태면 요청 대신 로그인으로 보낸다.
+   */
   const search = (keyword: string) => {
     const trimmed = keyword.trim();
-    if (!trimmed) return;
-    navigate(`${ROUTES.search}?q=${encodeURIComponent(trimmed)}`);
+    if (!trimmed || createSearchSession.isPending) return;
+
+    if (!isLoggedIn) {
+      navigate(ROUTES.login);
+      return;
+    }
+
+    createSearchSession.mutate(trimmed, {
+      onSuccess: (session) => {
+        navigate(`${ROUTES.search}?sessionId=${encodeURIComponent(session.sessionId)}`);
+      },
+    });
   };
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -200,13 +221,29 @@ export function HomePage() {
               <button
                 type="submit"
                 aria-label="찾아줘"
-                className="bg-ds-brand hover:bg-ds-brand-hovered active:bg-ds-brand-pressed rounded-ds-sm text-ds-body-lg font-ds-medium text-ds-text-inverse focus-visible:outline-ds-border-focused inline-flex h-10 shrink-0 items-center gap-1.5 px-3 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 sm:px-4"
+                disabled={createSearchSession.isPending}
+                className="bg-ds-brand hover:bg-ds-brand-hovered active:bg-ds-brand-pressed rounded-ds-sm text-ds-body-lg font-ds-medium text-ds-text-inverse focus-visible:outline-ds-border-focused disabled:bg-ds-neutral disabled:text-ds-text-disabled inline-flex h-10 shrink-0 items-center gap-1.5 px-3 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed sm:px-4"
               >
                 {/* 좁은 화면에서는 입력 영역을 넓히기 위해 아이콘만 남긴다. */}
-                <span className="hidden sm:inline">찾아줘</span>
-                <ArrowRight className="size-4" aria-hidden />
+                <span className="hidden sm:inline">{createSearchSession.isPending ? '찾는 중' : '찾아줘'}</span>
+                {createSearchSession.isPending ? (
+                  <LoaderCircle className="size-4 animate-spin" aria-hidden />
+                ) : (
+                  <ArrowRight className="size-4" aria-hidden />
+                )}
               </button>
             </div>
+
+            <p aria-live="polite" className="text-ds-body mt-3 min-h-5">
+              {createSearchSession.isPending ? (
+                <span className="text-ds-text-subtle">
+                  AI가 번개장터·중고나라·N플리마켓을 살펴보고 있어요. 잠시만 기다려주세요.
+                </span>
+              ) : null}
+              {createSearchSession.isError ? (
+                <span className="text-ds-danger-text">{getErrorMessage(createSearchSession.error)}</span>
+              ) : null}
+            </p>
           </form>
 
           <ul className="mt-5 flex flex-wrap justify-center gap-2">
@@ -215,7 +252,8 @@ export function HomePage() {
                 <button
                   type="button"
                   onClick={() => search(label)}
-                  className="border-ds-border bg-ds-surface text-ds-text-subtle hover:bg-ds-surface-hovered hover:text-ds-text rounded-ds-sm text-ds-body font-ds-medium focus-visible:outline-ds-border-focused inline-flex h-9 items-center gap-1.5 border px-3.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+                  disabled={createSearchSession.isPending}
+                  className="border-ds-border bg-ds-surface text-ds-text-subtle hover:bg-ds-surface-hovered hover:text-ds-text rounded-ds-sm text-ds-body font-ds-medium focus-visible:outline-ds-border-focused disabled:text-ds-text-disabled inline-flex h-9 items-center gap-1.5 border px-3.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed"
                 >
                   <Icon className="size-3.5" aria-hidden />
                   {label}

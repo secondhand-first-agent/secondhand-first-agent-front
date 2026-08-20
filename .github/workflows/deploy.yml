@@ -1,0 +1,51 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v3
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: pnpm 설치
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: 패키지 설치
+        run: pnpm install --ignore-scripts
+
+      - name: 빌드
+        env:
+          VITE_API_BASE_URL: https://api.goreuming.peter-ktb4.cloud
+          VITE_ENABLE_MSW: false
+        run: pnpm build
+
+      - name: S3 업로드
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-northeast-2
+        run: |
+          aws s3 sync dist/ s3://hackathon-storage-155359186350-ap-northeast-2-an/frontend/ \
+            --delete --region ap-northeast-2
+
+      - name: CloudFront 캐시 무효화
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-northeast-2
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id E3FSFJDWRY0QHV \
+            --paths "/*"

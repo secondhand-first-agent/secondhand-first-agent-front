@@ -3,6 +3,7 @@ import { locationQueries, locationQueryKeys } from './locationQueries';
 
 export { MIN_LOCATION_QUERY_LENGTH } from './locationQueries';
 import { productQueries, productQueryKeys } from './productQueries';
+import { searchQueries, searchQueryKeys } from './searchQueries';
 import { userQueries, userQueryKeys } from './userQueries';
 
 export const queryKeys = {
@@ -10,6 +11,7 @@ export const queryKeys = {
   users: userQueryKeys,
   activities: activityQueryKeys,
   locations: locationQueryKeys,
+  searches: searchQueryKeys,
 } as const;
 
 export const queryFactory = {
@@ -17,6 +19,7 @@ export const queryFactory = {
   users: userQueries,
   activities: activityQueries,
   locations: locationQueries,
+  searches: searchQueries,
 } as const;
 
 export {
@@ -26,6 +29,8 @@ export {
   locationQueryKeys,
   productQueries,
   productQueryKeys,
+  searchQueries,
+  searchQueryKeys,
   userQueries,
   userQueryKeys,
 };
