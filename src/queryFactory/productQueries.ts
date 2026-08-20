@@ -1,7 +1,7 @@
 import { queryOptions } from '@tanstack/react-query';
 
-import { fetchBestDeals } from '@/api/products/best-deal.api';
-import { fetchProducts, type ProductListParams } from '@/api/products/product.api';
+import { fetchBestDeals, type BestDealParams } from '@/api/products/best-deal.api';
+import { fetchProductDetail, fetchProducts, type ProductListParams } from '@/api/products/product.api';
 
 export const productQueryKeys = {
   all: ['products'],
@@ -9,7 +9,7 @@ export const productQueryKeys = {
   list: (params: ProductListParams) => [...productQueryKeys.lists(), params],
   details: () => [...productQueryKeys.all, 'detail'],
   detail: (id: string) => [...productQueryKeys.details(), id],
-  bestDeals: () => [...productQueryKeys.all, 'best-deals'],
+  bestDeals: (params: BestDealParams) => [...productQueryKeys.all, 'best-deals', params],
 };
 
 export const productQueries = {
@@ -18,9 +18,14 @@ export const productQueries = {
       queryKey: productQueryKeys.list(params),
       queryFn: () => fetchProducts(params),
     }),
-  bestDeals: () =>
+  detail: (id: string) =>
     queryOptions({
-      queryKey: productQueryKeys.bestDeals(),
-      queryFn: fetchBestDeals,
+      queryKey: productQueryKeys.detail(id),
+      queryFn: () => fetchProductDetail(id),
+    }),
+  bestDeals: (params: BestDealParams = {}) =>
+    queryOptions({
+      queryKey: productQueryKeys.bestDeals(params),
+      queryFn: () => fetchBestDeals(params),
     }),
 };

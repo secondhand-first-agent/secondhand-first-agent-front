@@ -21,17 +21,17 @@ import {
   Watch,
   type LucideIcon,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router';
 
+import type { BestDealCategoryFilter, BestDealSort } from '@/api/products/best-deal.api';
 import type { BestDeal, BestDealCategory } from '@/api/products/best-deal.schema';
 import { getErrorMessage } from '@/api/response';
 import { productDetailPath } from '@/app/routes';
 import { Dropdown } from '@/components/Dropdown';
 import { queryFactory } from '@/queryFactory';
 
-type CategoryFilter = 'ALL' | Exclude<BestDealCategory, 'OTHER'>;
-type BestDealSort = 'AI_RECOMMENDED' | 'PRICE_ASC' | 'SAVINGS_DESC';
+type CategoryFilter = BestDealCategoryFilter;
 
 /** 카테고리별 이름과 아이콘. 필터 칩과 썸네일 대체 아이콘이 같은 표를 쓴다. */
 const CATEGORIES: Record<BestDealCategory, { label: string; Icon: LucideIcon }> = {
@@ -241,18 +241,11 @@ export function BestDealPage() {
   const [category, setCategory] = useState<CategoryFilter>('ALL');
   const [sort, setSort] = useState<BestDealSort>('AI_RECOMMENDED');
   const [showAll, setShowAll] = useState(false);
-  const { data, isPending, isError, error, refetch, isFetching } = useQuery(queryFactory.products.bestDeals());
+  const { data, isPending, isError, error, refetch, isFetching } = useQuery(
+    queryFactory.products.bestDeals({ category, sort, page: 0, size: 100 })
+  );
   const deals = data?.items ?? EMPTY_DEALS;
-
-  const sortedDeals = useMemo(() => {
-    const filtered = deals.filter((deal) => category === 'ALL' || deal.category === category);
-
-    return [...filtered].sort((left, right) => {
-      if (sort === 'PRICE_ASC') return left.price - right.price;
-      if (sort === 'SAVINGS_DESC') return right.savingsRate - left.savingsRate;
-      return right.recommendationScore - left.recommendationScore;
-    });
-  }, [category, deals, sort]);
+  const sortedDeals = deals;
 
   const featuredDeals = sortedDeals.slice(0, 3);
   const additionalDeals = sortedDeals.slice(3);
@@ -330,11 +323,11 @@ export function BestDealPage() {
 
           {!isPending && !isError && featuredDeals.length > 0 ? (
             <div className="grid gap-5 lg:grid-cols-3">
-              {featuredDeals.map((deal, index) => (
+              {featuredDeals.map((deal) => (
                 <DealCard
                   key={deal.productId}
                   deal={deal}
-                  rank={index + 1}
+                  rank={deal.rank}
                   featured
                   detailUrl={productDetailPath(deal.productId)}
                 />
@@ -348,11 +341,11 @@ export function BestDealPage() {
                 이런 딜도 놓치지 마세요
               </h2>
               <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {visibleAdditionalDeals.map((deal, index) => (
+                {visibleAdditionalDeals.map((deal) => (
                   <DealCard
                     key={deal.productId}
                     deal={deal}
-                    rank={index + 4}
+                    rank={deal.rank}
                     featured={false}
                     detailUrl={productDetailPath(deal.productId)}
                   />
