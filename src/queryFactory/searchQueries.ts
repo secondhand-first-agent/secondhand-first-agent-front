@@ -1,6 +1,6 @@
 import { queryOptions } from '@tanstack/react-query';
 
-import { fetchSearchSession } from '@/api/searches/search.api';
+import { fetchSearchResults, fetchSearchSession } from '@/api/searches/search.api';
 import type { SearchRecommendation } from '@/api/searches/search.schema';
 
 export const searchQueryKeys = {
@@ -21,18 +21,21 @@ export const searchQueries = {
   /**
    * 세션의 추천 상품 목록.
    *
-   * 서버에서 다시 가져올 수 없다 — 목록을 주는 API 는 `POST /search-sessions` 하나뿐이라
-   * 검색을 만든 뮤테이션이 캐시에 심어 둔 값만 읽는다. 그래서 `enabled: false` 로 두고
-   * 절대 fetch 하지 않는다. 새로고침 등으로 캐시가 비면 `data` 가 `undefined` 이고,
-   * 화면은 그때 "다시 검색해달라"고 안내한다.
+   * 검색을 만든 뮤테이션이 캐시에 심어 두지만, 그 캐시에만 기대지 않는다. 새로고침·
+   * 뒤로가기·최근 검색 재진입에서는 캐시가 비어 있고, 그때도 목록은 그대로 있어야 한다.
+   * 서버에 저장된 결과를 `GET /search-sessions/{sessionId}/results` 로 다시 받는다.
+   *
+   * 뮤테이션이 심어 둔 값이 있으면 `staleTime` 때문에 다시 부르지 않는다 — 방금 받은
+   * 목록을 한 번 더 받아오는 낭비는 없다.
    */
   recommendations: (sessionId: string) =>
     queryOptions({
       queryKey: searchQueryKeys.recommendations(sessionId),
-      queryFn: (): Promise<SearchRecommendation[]> => {
-        throw new Error('검색 결과를 다시 불러오는 API 가 없습니다.');
+      queryFn: async (): Promise<SearchRecommendation[]> => {
+        const { recommendations } = await fetchSearchResults(sessionId);
+        return recommendations;
       },
-      enabled: false,
+      enabled: sessionId.length > 0,
       staleTime: Infinity,
       gcTime: Infinity,
     }),

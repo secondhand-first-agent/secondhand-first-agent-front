@@ -47,6 +47,14 @@ const SORT_OPTIONS: Array<{ value: SearchSort; label: string }> = [
   { value: 'PRICE_ASC', label: '가격 낮은순' },
 ];
 
+/**
+ * 순위 배지를 붙이고 접힌 상태에서 보여줄 개수.
+ *
+ * AI 가 추천 이유를 써 주는 것도 상위 4건이다. 배지와 이유가 같은 묶음에 붙어야
+ * «왜 이 넷인가»가 화면에서 그대로 읽힌다.
+ */
+const TOP_RANK_COUNT = 4;
+
 const CONDITION_LABELS: Record<Condition, string> = {
   NEW: '미개봉',
   LIKE_NEW: '거의 새것',
@@ -249,7 +257,17 @@ function ResultCard({
               : 'flex min-w-0 flex-1 flex-col justify-center'
           }
         >
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {/*
+              1 위 카드는 썸네일 위에 배지를 이미 달고 있다. 나머지 상위권은 여기에 붙인다.
+              정렬을 가격순으로 바꿔도 등수는 AI 가 매긴 그대로 따라다닌다 — 등수는
+              화면의 나열 순서가 아니라 상품에 붙은 값이다.
+            */}
+            {!featured && product.rank <= TOP_RANK_COUNT ? (
+              <Lozenge tone="brand" icon={Award}>
+                AI 추천 {product.rank}순위
+              </Lozenge>
+            ) : null}
             <Lozenge tone={PLATFORM_TONES[product.platform]}>{PLATFORM_LABELS[product.platform]}</Lozenge>
             {product.recommendationScore == null ? null : (
               <span className="text-ds-text-subtlest text-ds-body-sm">
@@ -321,8 +339,9 @@ export function SearchPage() {
   const sessionId = searchParams.get('sessionId')?.trim() ?? '';
 
   const session = useQuery(queryFactory.searches.session(sessionId));
-  // 결과 목록은 검색을 만든 뮤테이션이 캐시에 심어 둔 것만 있다. 다시 받아올 API 가 없다.
-  const { data: recommendations } = useQuery(queryFactory.searches.recommendations(sessionId));
+  // 검색을 만든 뮤테이션이 캐시에 심어 두고, 캐시가 비어 있으면 서버에서 다시 받아온다.
+  const results = useQuery(queryFactory.searches.recommendations(sessionId));
+  const recommendations = results.data;
 
   const [platform, setPlatform] = useState<PlatformFilter>('ALL');
   const [sort, setSort] = useState<SearchSort>('AI_RECOMMENDED');
@@ -370,7 +389,7 @@ export function SearchPage() {
   }
 
   const detail = session.data;
-  const visibleProducts = showAll ? sortedProducts : sortedProducts.slice(0, 4);
+  const visibleProducts = showAll ? sortedProducts : sortedProducts.slice(0, TOP_RANK_COUNT);
   const featuredProduct = products[0];
 
   return (
@@ -470,13 +489,18 @@ export function SearchPage() {
         </aside>
 
         <div className="min-w-0 space-y-4">
-          {recommendations === undefined ? (
+          {results.isPending ? (
+            <div className="rounded-ds-lg border-ds-border bg-ds-surface border border-dashed px-6 py-14 text-center">
+              <p className="text-ds-text-subtle text-ds-body inline-flex items-center gap-2">
+                <LoaderCircle className="size-4 animate-spin" aria-hidden />
+                매물 목록을 불러오는 중이에요
+              </p>
+            </div>
+          ) : recommendations === undefined ? (
             <div className="rounded-ds-lg border-ds-border bg-ds-surface border border-dashed px-6 py-14 text-center">
               <Sparkles className="text-ds-text-subtlest mx-auto size-6" aria-hidden />
-              <p className="text-ds-text text-ds-h-sm font-ds-bold mt-3">매물 목록을 다시 불러올 수 없어요</p>
-              <p className="text-ds-text-subtle text-ds-body mt-1">
-                매물은 검색을 실행한 순간에만 받아옵니다. 같은 조건으로 다시 검색해주세요.
-              </p>
+              <p className="text-ds-text text-ds-h-sm font-ds-bold mt-3">매물 목록을 불러오지 못했어요</p>
+              <p className="text-ds-text-subtle text-ds-body mt-1">{getErrorMessage(results.error)}</p>
               <Link
                 to={ROUTES.home}
                 className={`${BUTTON_BASE} bg-ds-brand hover:bg-ds-brand-hovered active:bg-ds-brand-pressed text-ds-text-inverse mt-5 h-9 px-4`}
@@ -550,7 +574,7 @@ export function SearchPage() {
                 </div>
               ) : null}
 
-              {sortedProducts.length > 4 && !showAll ? (
+              {sortedProducts.length > TOP_RANK_COUNT && !showAll ? (
                 <button
                   type="button"
                   onClick={() => setShowAll(true)}
