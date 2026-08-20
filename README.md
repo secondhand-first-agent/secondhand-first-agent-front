@@ -10,10 +10,7 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-`.env.local` 의 `VITE_ENABLE_MSW=true` 면 백엔드 없이 MSW 목 데이터로 개발할 수 있습니다.
-실서버를 붙이려면 이 값을 지우고 `VITE_API_BASE_URL` 을 백엔드 주소로 맞추세요.
-
-목 계정: `test@example.com` / `test1234`
+`VITE_API_BASE_URL`을 실행할 백엔드 주소로 맞추세요. 기본 로컬 주소는 `http://localhost:8080`입니다.
 
 ## 스크립트
 
@@ -42,7 +39,6 @@ src/
   pages/        # 라우트가 직접 가리키는 화면
   features/     # 도메인 컴포넌트 (API · 훅 은 여기 두지 않습니다)
   components/   # 도메인 무관 공용 컴포넌트
-  mocks/        # MSW 핸들러 (개발용 목 API)
 ```
 
 `@/` 는 `src/` 별칭입니다.
@@ -60,7 +56,7 @@ src/
 ## 인증
 
 JWT 기반입니다. `apiClient` 가 요청마다 `Authorization: Bearer` 를 붙이고,
-401 이 나면 `/users/token/refresh` 로 액세스 토큰을 재발급받아 원래 요청을 한 번 재시도합니다.
+401 이 나면 `/auth/token/refresh` 로 액세스 토큰을 재발급받아 원래 요청을 한 번 재시도합니다.
 동시에 여러 401 이 나도 재발급 요청은 하나로 묶입니다. 재발급까지 실패하면 세션을 지우고 `/login` 으로 보냅니다.
 
 - 회원가입은 이메일 + 비밀번호만 받습니다. **이메일 인증번호 단계는 아직 없습니다.**
