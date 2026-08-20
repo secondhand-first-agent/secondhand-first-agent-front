@@ -4,7 +4,6 @@ export const ROUTES = {
   bestDeal: '/best-deal',
   howItWorks: '/how-it-works',
   profile: '/profile',
-  wishlist: '/wishlist',
   history: '/history',
   settings: '/settings',
   products: '/products',

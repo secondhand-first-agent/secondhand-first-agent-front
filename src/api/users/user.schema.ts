@@ -1,12 +1,11 @@
 import { z } from 'zod';
 
 export const userStatsSchema = z.object({
-  favoriteCount: z.number().int().nonnegative(),
   platformRedirectCount: z.number().int().nonnegative(),
   aiSearchCount: z.number().int().nonnegative(),
 });
 
-const EMPTY_STATS = { favoriteCount: 0, platformRedirectCount: 0, aiSearchCount: 0 };
+const EMPTY_STATS = { platformRedirectCount: 0, aiSearchCount: 0 };
 
 export const meSchema = z
   .object({

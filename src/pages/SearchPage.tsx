@@ -3,7 +3,6 @@ import {
   ChevronDown,
   ExternalLink,
   Headphones,
-  Heart,
   Leaf,
   MapPin,
   PiggyBank,
@@ -172,18 +171,14 @@ function ProductThumbnail({ product, size = 'card' }: { product: SearchResultPro
 function ResultCard({
   product,
   featured,
-  favorite,
   selected,
   detailHref,
-  onToggleFavorite,
   onSelect,
 }: {
   product: SearchResultProduct;
   featured: boolean;
-  favorite: boolean;
   selected: boolean;
   detailHref: string;
-  onToggleFavorite: () => void;
   onSelect: () => void;
 }) {
   const carbonSavedKg = estimateCarbonSavedKg(product.title);
@@ -259,19 +254,6 @@ function ResultCard({
             </div>
             {/* 카드를 덮은 링크 위로 올려서 각자의 동작이 살아 있게 한다. */}
             <div className="relative z-10 flex shrink-0 items-center gap-2">
-              <button
-                type="button"
-                onClick={onToggleFavorite}
-                aria-label={favorite ? '찜 취소' : '찜하기'}
-                aria-pressed={favorite}
-                className={`${BUTTON_BASE} size-8 ${
-                  favorite
-                    ? 'bg-ds-danger-bg text-ds-danger-bold hover:bg-ds-accent-red-bg'
-                    : 'text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text bg-transparent'
-                }`}
-              >
-                <Heart className="size-4" fill={favorite ? 'currentColor' : 'none'} aria-hidden />
-              </button>
               {featured ? (
                 <Link
                   to={detailHref}
@@ -368,9 +350,6 @@ export function SearchPage() {
   const [followUps, setFollowUps] = useState<string[]>([]);
   const [showAll, setShowAll] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(
-    () => new Set(results.content.filter((product) => product.isFavorite).map((product) => product.productId))
-  );
 
   useEffect(() => {
     setPlatform('ALL');
@@ -379,9 +358,6 @@ export function SearchPage() {
     setFollowUps([]);
     setShowAll(false);
     setSelectedProductId(null);
-    setFavoriteIds(
-      new Set(results.content.filter((product) => product.isFavorite).map((product) => product.productId))
-    );
   }, [keyword, results.content]);
 
   const sortedProducts = useMemo(() => {
@@ -410,14 +386,6 @@ export function SearchPage() {
     sendFollowUp(draft);
   };
 
-  const toggleFavorite = (productId: string) => {
-    setFavoriteIds((previous) => {
-      const next = new Set(previous);
-      if (next.has(productId)) next.delete(productId);
-      else next.add(productId);
-      return next;
-    });
-  };
 
   return (
     <section className="font-ds bg-ds-surface-sunken px-3 py-4 sm:px-5 lg:px-6 lg:py-6">
@@ -589,10 +557,8 @@ export function SearchPage() {
                 key={product.productId}
                 product={product}
                 featured={index === 0 && platform === 'ALL' && sort === 'AI_RECOMMENDED'}
-                favorite={favoriteIds.has(product.productId)}
                 selected={selectedProductId === product.productId}
                 detailHref={`${productDetailPath(product.productId)}?q=${encodeURIComponent(keyword)}`}
-                onToggleFavorite={() => toggleFavorite(product.productId)}
                 onSelect={() => setSelectedProductId(product.productId)}
               />
             ))}

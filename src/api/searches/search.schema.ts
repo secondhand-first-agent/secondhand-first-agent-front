@@ -55,7 +55,6 @@ export const searchResultProductSchema = z.object({
   recommendationScore: z.number().min(0).max(100),
   recommendationReason: z.string(),
   imageUrl: z.string().url().nullable().optional(),
-  isFavorite: z.boolean(),
   changedSinceLastViewed: z.boolean(),
 });
 

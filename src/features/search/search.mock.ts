@@ -44,7 +44,6 @@ const products = seeds.map((seed, index) => {
         ? '판매자 신뢰도와 상품 상태가 좋아 가장 합리적입니다.'
         : '가격과 상품 상태를 함께 고려하면 좋은 선택지입니다.',
     imageUrl: null,
-    isFavorite: index === 3,
     changedSinceLastViewed: false,
   };
 });
