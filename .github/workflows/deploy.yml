@@ -23,7 +23,7 @@ jobs:
           version: latest
 
       - name: 패키지 설치
-        run: pnpm install
+        run: pnpm install --ignore-scripts
 
       - name: 빌드
         env:
