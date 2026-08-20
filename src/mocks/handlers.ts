@@ -56,7 +56,6 @@ const bestDeals: BestDealList = {
       recommendationReason: '판매자 신뢰도와 상품 상태를 함께 고려하면 가장 합리적이에요.',
       recommendationScore: 96,
       imageUrl: null,
-      isFavorite: false,
     },
     {
       productId: 'mock_2',
@@ -73,7 +72,6 @@ const bestDeals: BestDealList = {
       recommendationReason: '배터리 사이클이 낮고 박스·구성품이 모두 포함되어 있어요.',
       recommendationScore: 92,
       imageUrl: null,
-      isFavorite: false,
     },
     {
       productId: 'mock_3',
@@ -90,7 +88,6 @@ const bestDeals: BestDealList = {
       recommendationReason: '미개봉 상품이라 새것과 다름없지만 가격은 훨씬 저렴해요.',
       recommendationScore: 89,
       imageUrl: null,
-      isFavorite: false,
     },
     {
       productId: 'mock_4',
@@ -107,7 +104,6 @@ const bestDeals: BestDealList = {
       recommendationReason: '배터리 상태와 외관이 좋아 안정적인 선택이에요.',
       recommendationScore: 87,
       imageUrl: null,
-      isFavorite: false,
     },
     {
       productId: 'mock_5',
@@ -124,7 +120,6 @@ const bestDeals: BestDealList = {
       recommendationReason: '구성품이 잘 보존된 가성비 좋은 매물이에요.',
       recommendationScore: 84,
       imageUrl: null,
-      isFavorite: false,
     },
     {
       productId: 'mock_6',
@@ -141,7 +136,6 @@ const bestDeals: BestDealList = {
       recommendationReason: '사용감은 있지만 성능 대비 가격이 매력적이에요.',
       recommendationScore: 81,
       imageUrl: null,
-      isFavorite: false,
     },
     {
       productId: 'mock_7',
@@ -158,7 +152,6 @@ const bestDeals: BestDealList = {
       recommendationReason: '큰 폭의 할인과 판매자 신뢰도를 함께 확인했어요.',
       recommendationScore: 79,
       imageUrl: null,
-      isFavorite: false,
     },
     {
       productId: 'mock_8',
@@ -175,7 +168,6 @@ const bestDeals: BestDealList = {
       recommendationReason: '사무용으로 부담 없이 시작하기 좋은 가격이에요.',
       recommendationScore: 76,
       imageUrl: null,
-      isFavorite: false,
     },
     {
       productId: 'mock_9',
@@ -192,7 +184,6 @@ const bestDeals: BestDealList = {
       recommendationReason: '구성품이 모두 있고 시세보다 저렴한 매물이에요.',
       recommendationScore: 73,
       imageUrl: null,
-      isFavorite: false,
     },
     {
       productId: 'mock_10',
@@ -209,7 +200,6 @@ const bestDeals: BestDealList = {
       recommendationReason: '최근 등록된 미세 사용감 매물이라 가격 경쟁력이 좋아요.',
       recommendationScore: 70,
       imageUrl: null,
-      isFavorite: false,
     },
     {
       productId: 'mock_11',
@@ -226,7 +216,6 @@ const bestDeals: BestDealList = {
       recommendationReason: '정품 구성품이 모두 있고 공식가 대비 절약 폭이 커요.',
       recommendationScore: 68,
       imageUrl: null,
-      isFavorite: false,
     },
   ],
 };

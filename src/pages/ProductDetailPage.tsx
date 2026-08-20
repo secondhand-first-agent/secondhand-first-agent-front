@@ -2,7 +2,6 @@ import {
   ArrowLeft,
   ExternalLink,
   Eye,
-  Heart,
   Headphones,
   MapPin,
   Medal,
@@ -121,7 +120,6 @@ export function ProductDetailPage() {
   const query = searchParams.get('q') ?? '30만원으로 에어팟 사고 싶어, 중고 괜찮아';
   const detail = useMemo(() => createMockProductDetail(productId, query), [productId, query]);
   const rankedProducts = useMemo(() => createMockSearchData(query).results.content.slice(0, 3), [query]);
-  const [isFavorite, setIsFavorite] = useState(detail?.product.isFavorite ?? false);
   const [activePhoto, setActivePhoto] = useState(0);
 
   /*
@@ -171,15 +169,6 @@ export function ProductDetailPage() {
                 <span className="absolute top-6 left-6">
                   <RankBadge rank={product.rank} />
                 </span>
-                <button
-                  type="button"
-                  aria-label={isFavorite ? '찜 취소' : '찜하기'}
-                  aria-pressed={isFavorite}
-                  onClick={() => setIsFavorite((favorite) => !favorite)}
-                  className={`bg-ds-surface text-ds-text-subtlest shadow-ds-raised absolute top-6 right-6 flex size-14 items-center justify-center rounded-full border transition-colors ${isFavorite ? 'border-ds-danger-border text-ds-danger-text' : 'border-ds-border hover:text-ds-text-subtle'}`}
-                >
-                  <Heart className="size-6" fill={isFavorite ? 'currentColor' : 'none'} aria-hidden />
-                </button>
                 <Headphones className="text-ds-text-subtlest size-44 sm:size-56" strokeWidth={1.1} aria-hidden />
               </div>
               <div className="border-ds-border flex gap-3 overflow-x-auto border-t p-4">
@@ -295,15 +284,6 @@ export function ProductDetailPage() {
                 </span>
               </div>
               <div className="mt-7 flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsFavorite((favorite) => !favorite)}
-                  aria-label={isFavorite ? '찜 취소' : '찜하기'}
-                  aria-pressed={isFavorite}
-                  className={`rounded-ds-lg flex size-14 shrink-0 items-center justify-center border transition-colors ${isFavorite ? 'border-ds-danger-border bg-ds-danger-bg text-ds-danger-text' : 'border-ds-border text-ds-text-subtlest hover:border-ds-border-bold hover:text-ds-text-subtle'}`}
-                >
-                  <Heart className="size-6" fill={isFavorite ? 'currentColor' : 'none'} aria-hidden />
-                </button>
                 <a
                   href={detail.platformUrl}
                   target="_blank"

@@ -9,7 +9,6 @@ import { queryFactory } from '@/queryFactory';
 
 const MENU_ITEMS = [
   { to: ROUTES.profile, label: '마이페이지' },
-  { to: ROUTES.wishlist, label: '찜 목록' },
   { to: ROUTES.history, label: '이동 내역' },
   { to: ROUTES.settings, label: '설정' },
 ];

@@ -19,7 +19,7 @@ import { SearchPage } from '@/pages/SearchPage';
 import { SignupPage } from '@/pages/SignupPage';
 import { TermsPage } from '@/pages/TermsPage';
 
-const COMING_SOON = [{ path: ROUTES.wishlist, title: '찜 목록' }];
+const COMING_SOON: Array<{ path: string; title: string }> = [];
 
 export const router = createBrowserRouter([
   {

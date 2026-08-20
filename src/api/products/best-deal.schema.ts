@@ -19,7 +19,6 @@ export const bestDealSchema = z.object({
   recommendationReason: z.string(),
   recommendationScore: z.number().min(0).max(100),
   imageUrl: z.string().url().nullable(),
-  isFavorite: z.boolean(),
 });
 
 export const bestDealListSchema = z.object({

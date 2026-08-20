@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import {
   Gamepad2,
   Headphones,
-  Heart,
   Laptop,
   LoaderCircle,
   Monitor,
@@ -131,16 +130,12 @@ function DealCard({
   deal,
   rank,
   featured,
-  favorite,
   detailUrl,
-  onToggleFavorite,
 }: {
   deal: BestDeal;
   rank: number;
   featured: boolean;
-  favorite: boolean;
   detailUrl: string;
-  onToggleFavorite: () => void;
 }) {
   if (!featured) {
     return (
@@ -155,18 +150,6 @@ function DealCard({
           </h3>
           <p className="text-ds-h-sm font-ds-bold text-ds-text mt-1">{formatPrice(deal.price)}</p>
         </div>
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            onToggleFavorite();
-          }}
-          aria-label={favorite ? '찜 취소' : '찜하기'}
-          aria-pressed={favorite}
-          className={`rounded-ds-sm flex size-8 shrink-0 items-center justify-center transition-colors ${favorite ? 'bg-ds-danger-bg text-ds-danger-bold' : 'text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text bg-transparent'}`}
-        >
-          <Heart className="size-5" fill={favorite ? 'currentColor' : 'none'} aria-hidden />
-        </button>
       </article>
     );
   }
@@ -203,18 +186,6 @@ function DealCard({
             <PiggyBank className="size-4 shrink-0" aria-hidden />
             새상품 대비 {formatPrice(deal.savingsAmount)} 절약
           </span>
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              onToggleFavorite();
-            }}
-            aria-label={favorite ? '찜 취소' : '찜하기'}
-            aria-pressed={favorite}
-            className={`rounded-ds-sm flex size-8 shrink-0 items-center justify-center transition-colors ${favorite ? 'bg-ds-danger-bg text-ds-danger-bold' : 'text-ds-text-subtle hover:bg-ds-neutral hover:text-ds-text bg-transparent'}`}
-          >
-            <Heart className="size-5" fill={favorite ? 'currentColor' : 'none'} aria-hidden />
-          </button>
         </div>
       </div>
     </article>
@@ -242,12 +213,10 @@ export function BestDealPage() {
   const [category, setCategory] = useState<CategoryFilter>('ALL');
   const [sort, setSort] = useState<BestDealSort>('AI_RECOMMENDED');
   const [showAll, setShowAll] = useState(false);
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const { data, isPending, isError, error, refetch, isFetching } = useQuery(queryFactory.products.bestDeals());
   const deals = data?.items ?? [];
 
   useEffect(() => {
-    setFavoriteIds(new Set(deals.filter((deal) => deal.isFavorite).map((deal) => deal.productId)));
   }, [deals]);
 
   const sortedDeals = useMemo(() => {
@@ -264,14 +233,6 @@ export function BestDealPage() {
   const additionalDeals = sortedDeals.slice(3);
   const visibleAdditionalDeals = showAll ? additionalDeals : additionalDeals.slice(0, 6);
 
-  const toggleFavorite = (productId: string) => {
-    setFavoriteIds((previous) => {
-      const next = new Set(previous);
-      if (next.has(productId)) next.delete(productId);
-      else next.add(productId);
-      return next;
-    });
-  };
 
   return (
     <section className="bg-[#f8fafc] px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
@@ -351,9 +312,7 @@ export function BestDealPage() {
                   deal={deal}
                   rank={index + 1}
                   featured
-                  favorite={favoriteIds.has(deal.productId)}
                   detailUrl={productDetailPath(deal.productId)}
-                  onToggleFavorite={() => toggleFavorite(deal.productId)}
                 />
               ))}
             </div>
@@ -371,9 +330,7 @@ export function BestDealPage() {
                     deal={deal}
                     rank={index + 4}
                     featured={false}
-                    favorite={favoriteIds.has(deal.productId)}
                     detailUrl={productDetailPath(deal.productId)}
-                    onToggleFavorite={() => toggleFavorite(deal.productId)}
                   />
                 ))}
               </div>
