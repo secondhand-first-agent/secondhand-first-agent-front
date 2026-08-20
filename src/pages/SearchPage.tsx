@@ -29,9 +29,10 @@ type PlatformFilter = 'ALL' | Platform;
 
 const PLATFORM_TABS: Array<{ value: PlatformFilter; label: string }> = [
   { value: 'ALL', label: '전체' },
-  { value: 'DAANGN', label: '당근' },
-  { value: 'BUNGJANG', label: '번개장터' },
-  { value: 'JOONGGONARA', label: '중고나라' },
+  { value: 'BUNJANG', label: '번개장터' },
+  { value: 'JOONGNA', label: '중고나라' },
+  { value: 'NAVER_FLEAMARKET', label: 'N플리마켓' },
+  { value: 'ELEVENST', label: '11번가' },
 ];
 
 const SORT_OPTIONS: Array<{ value: SearchSort; label: string }> = [
@@ -41,16 +42,19 @@ const SORT_OPTIONS: Array<{ value: SearchSort; label: string }> = [
 ];
 
 const CONDITION_LABELS: Record<Condition, string> = {
-  UNOPENED: '미개봉',
+  NEW: '미개봉',
   LIKE_NEW: '거의 새것',
-  GOOD: '사용감 적음',
+  LIGHTLY_USED: '사용감 적음',
   USED: '사용감 있음',
+  UNSPECIFIED: '상태 미기재',
+  UNKNOWN: '상태 확인 필요',
 };
 
 const PLATFORM_LABELS: Record<Platform, string> = {
-  DAANGN: '당근마켓',
-  BUNGJANG: '번개장터',
-  JOONGGONARA: '중고나라',
+  BUNJANG: '번개장터',
+  JOONGNA: '중고나라',
+  NAVER_FLEAMARKET: 'N플리마켓',
+  ELEVENST: '11번가',
 };
 
 /** ADS Lozenge 톤. color.background.accent.*.subtlest + color.text.accent.* */
@@ -69,9 +73,11 @@ const LOZENGE_TONES: Record<LozengeTone, string> = {
 };
 
 const PLATFORM_TONES: Record<Platform, LozengeTone> = {
-  DAANGN: 'orange',
-  BUNGJANG: 'yellow',
-  JOONGGONARA: 'red',
+  BUNJANG: 'red',
+  JOONGNA: 'yellow',
+  NAVER_FLEAMARKET: 'green',
+  // 새상품 채널이라 중고 셋과 색 계열을 구분한다.
+  ELEVENST: 'purple',
 };
 
 const QUICK_QUESTIONS = ['미개봉만 보여줘', '더 저렴한 것도', '판교 근처만'];
@@ -470,7 +476,7 @@ export function SearchPage() {
                     <div className="min-w-0">
                       <p className="text-ds-text text-ds-body font-ds-bold truncate">{featuredProduct.title}</p>
                       <p className="text-ds-text-subtle text-ds-body-sm mt-0.5">
-                        당근마켓 · {CONDITION_LABELS[featuredProduct.condition]}
+                        {PLATFORM_LABELS[featuredProduct.platform]} · {CONDITION_LABELS[featuredProduct.condition]}
                       </p>
                     </div>
                     <span className="text-ds-text text-ds-body font-ds-bold ml-auto shrink-0">

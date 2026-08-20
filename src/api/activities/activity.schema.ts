@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const activityPlatformSchema = z.enum(['DAANGN', 'BUNGJANG', 'JOONGGONARA']);
+export const activityPlatformSchema = z.enum(['NAVER_FLEAMARKET', 'BUNJANG', 'JOONGNA']);
 
 export const redirectHistorySchema = z.object({
   id: z.string(),

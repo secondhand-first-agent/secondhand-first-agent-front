@@ -21,9 +21,10 @@ export function createMockProductDetail(productId: string, query: string): MockP
   if (!product) return null;
 
   const platformUrl = {
-    DAANGN: 'https://www.daangn.com/',
-    BUNGJANG: 'https://m.bunjang.co.kr/',
-    JOONGGONARA: 'https://web.joongna.com/',
+    NAVER_FLEAMARKET: 'https://fleamarket.naver.com/',
+    BUNJANG: 'https://m.bunjang.co.kr/',
+    JOONGNA: 'https://web.joongna.com/',
+    ELEVENST: 'https://www.11st.co.kr/',
   }[product.platform];
 
   return {
