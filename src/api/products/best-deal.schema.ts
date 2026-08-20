@@ -2,7 +2,28 @@ import { z } from 'zod';
 
 import { conditionSchema, platformSchema } from '@/api/searches/search.schema';
 
-export const bestDealCategorySchema = z.enum(['EARPHONES', 'LAPTOP', 'SMARTPHONE', 'SMARTWATCH', 'OTHER']);
+/**
+ * 서버 `ProductCategory` 와 같은 값입니다.
+ * 서버가 카테고리를 늘려도 화면이 통째로 깨지지 않도록, 모르는 값은 OTHER 로 받습니다.
+ */
+export const bestDealCategorySchema = z
+  .enum([
+    'EARPHONES',
+    'LAPTOP',
+    'SMARTPHONE',
+    'SMARTWATCH',
+    'TABLET',
+    'MONITOR',
+    'GAME_CONSOLE',
+    'CLOTHING',
+    'BAG_SHOES',
+    'FURNITURE',
+    'SPORTS_TOYS',
+    'BOOKS',
+    'WATCH_JEWELRY',
+    'OTHER',
+  ])
+  .catch('OTHER');
 
 export const bestDealSchema = z.object({
   productId: z.string(),
