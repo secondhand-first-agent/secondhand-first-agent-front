@@ -35,22 +35,27 @@ const CATEGORY_FILTERS: Array<{ value: CategoryFilter; label: string; Icon?: Luc
 ];
 
 const CONDITION_LABELS: Record<BestDeal['condition'], string> = {
-  UNOPENED: '미개봉',
+  NEW: '미개봉',
   LIKE_NEW: '거의 새것',
-  GOOD: '상태 좋음',
+  LIGHTLY_USED: '사용감 적음',
   USED: '사용감 있음',
+  UNSPECIFIED: '상태 미기재',
+  UNKNOWN: '상태 확인 필요',
 };
 
 const PLATFORM_LABELS: Record<BestDeal['platform'], string> = {
-  DAANGN: '당근마켓',
-  BUNGJANG: '번개장터',
-  JOONGGONARA: '중고나라',
+  BUNJANG: '번개장터',
+  JOONGNA: '중고나라',
+  NAVER_FLEAMARKET: 'N플리마켓',
+  ELEVENST: '11번가',
 };
 
 const PLATFORM_STYLES: Record<BestDeal['platform'], string> = {
-  DAANGN: 'bg-ds-accent-orange-bg text-ds-accent-orange-text',
-  BUNGJANG: 'bg-ds-accent-yellow-bg text-ds-accent-yellow-text',
-  JOONGGONARA: 'bg-ds-danger-bg text-ds-danger-text',
+  NAVER_FLEAMARKET: 'bg-ds-accent-orange-bg text-ds-accent-orange-text',
+  BUNJANG: 'bg-ds-accent-yellow-bg text-ds-accent-yellow-text',
+  JOONGNA: 'bg-ds-danger-bg text-ds-danger-text',
+  // 새상품 채널이라 중고 셋과 색 계열을 구분한다.
+  ELEVENST: 'bg-ds-accent-purple-bg text-ds-accent-purple-text',
 };
 
 /** 카테고리별로 색을 나누면 의미 없는 구분이 생기므로, 썸네일 배경은 하나로 통일한다. */

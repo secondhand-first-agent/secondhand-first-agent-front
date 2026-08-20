@@ -11,15 +11,15 @@ const seeds: Array<{
   platform: Platform;
   title: string;
   price: number;
-  condition: 'UNOPENED' | 'LIKE_NEW' | 'GOOD' | 'USED';
+  condition: 'NEW' | 'LIKE_NEW' | 'LIGHTLY_USED' | 'USED';
   distanceKm: number | null;
 }> = [
-  { platform: 'DAANGN', title: 'AirPods Pro 2 (USB-C)', price: 180_000, condition: 'LIKE_NEW', distanceKm: 2.1 },
-  { platform: 'BUNGJANG', title: 'AirPods Pro 2 (미개봉)', price: 165_000, condition: 'UNOPENED', distanceKm: null },
-  { platform: 'JOONGGONARA', title: '에어팟 프로2 판매합니다', price: 145_000, condition: 'USED', distanceKm: null },
-  { platform: 'DAANGN', title: '에어팟프로2 근처 판매', price: 195_000, condition: 'LIKE_NEW', distanceKm: 3.8 },
-  { platform: 'BUNGJANG', title: '에어팟 프로 2세대 정품', price: 210_000, condition: 'GOOD', distanceKm: null },
-  { platform: 'JOONGGONARA', title: 'AirPods Pro 2 급처분', price: 155_000, condition: 'GOOD', distanceKm: null },
+  { platform: 'NAVER_FLEAMARKET', title: 'AirPods Pro 2 (USB-C)', price: 180_000, condition: 'LIKE_NEW', distanceKm: 2.1 },
+  { platform: 'BUNJANG', title: 'AirPods Pro 2 (미개봉)', price: 165_000, condition: 'NEW', distanceKm: null },
+  { platform: 'JOONGNA', title: '에어팟 프로2 판매합니다', price: 145_000, condition: 'USED', distanceKm: null },
+  { platform: 'NAVER_FLEAMARKET', title: '에어팟프로2 근처 판매', price: 195_000, condition: 'LIKE_NEW', distanceKm: 3.8 },
+  { platform: 'BUNJANG', title: '에어팟 프로 2세대 정품', price: 210_000, condition: 'LIGHTLY_USED', distanceKm: null },
+  { platform: 'JOONGNA', title: 'AirPods Pro 2 급처분', price: 155_000, condition: 'LIGHTLY_USED', distanceKm: null },
 ];
 
 const products = seeds.map((seed, index) => {
@@ -36,7 +36,7 @@ const products = seeds.map((seed, index) => {
     savingsRate: Math.round((savingsAmount / officialProduct.officialPrice) * 100),
     distanceKm: seed.distanceKm,
     condition: seed.condition,
-    tradeType: seed.platform === 'DAANGN' ? ['DIRECT'] : ['DELIVERY'],
+    tradeType: seed.platform === 'NAVER_FLEAMARKET' ? ['DIRECT'] : ['DELIVERY'],
     sellerTrustScore: 92 - index * 2,
     recommendationScore: 94 - index * 3,
     recommendationReason:
@@ -57,7 +57,7 @@ export function createMockSearchData(query: string): { session: SearchSession; r
       parsedConditions: {
         keyword: query.includes('맥북') ? '맥북' : '에어팟',
         maxPrice: 300_000,
-        condition: ['LIKE_NEW', 'GOOD'],
+        condition: ['LIKE_NEW', 'LIGHTLY_USED'],
         priority: 'BEST_VALUE',
       },
       assistantMessage: '당근·번개장터·중고나라에서 12개 매물을 찾았어요.',

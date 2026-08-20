@@ -20,15 +20,15 @@ type HistoryFilter = 'ALL' | ActivityPlatform;
 
 const FILTERS: { value: HistoryFilter; label: string }[] = [
   { value: 'ALL', label: '전체' },
-  { value: 'DAANGN', label: '당근마켓' },
-  { value: 'BUNGJANG', label: '번개장터' },
-  { value: 'JOONGGONARA', label: '중고나라' },
+  { value: 'NAVER_FLEAMARKET', label: '당근마켓' },
+  { value: 'BUNJANG', label: '번개장터' },
+  { value: 'JOONGNA', label: '중고나라' },
 ];
 
 const PLATFORM_META: Record<ActivityPlatform, { label: string; badge: string }> = {
-  DAANGN: { label: '당근마켓', badge: 'bg-ds-accent-orange-bg text-ds-accent-orange-text' },
-  BUNGJANG: { label: '번개장터', badge: 'bg-ds-accent-yellow-bg text-ds-accent-yellow-text' },
-  JOONGGONARA: { label: '중고나라', badge: 'bg-ds-danger-bg text-ds-danger-text' },
+  NAVER_FLEAMARKET: { label: '당근마켓', badge: 'bg-ds-accent-orange-bg text-ds-accent-orange-text' },
+  BUNJANG: { label: '번개장터', badge: 'bg-ds-accent-yellow-bg text-ds-accent-yellow-text' },
+  JOONGNA: { label: '중고나라', badge: 'bg-ds-danger-bg text-ds-danger-text' },
 };
 
 const THUMBNAIL_STYLES = ['bg-ds-success-bg', 'bg-ds-info-bg', 'bg-ds-warning-bg'];

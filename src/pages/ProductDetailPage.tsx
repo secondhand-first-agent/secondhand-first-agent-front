@@ -24,29 +24,37 @@ import { recordCarbonProductView } from '@/features/rewards/carbonQuest';
 import { createMockSearchData } from '@/features/search/search.mock';
 
 const CONDITION_LABELS: Record<Condition, string> = {
-  UNOPENED: '미개봉',
+  NEW: '미개봉',
   LIKE_NEW: '거의 새것',
-  GOOD: '사용감 적음',
+  LIGHTLY_USED: '사용감 적음',
   USED: '사용감 있음',
+  UNSPECIFIED: '상태 미기재',
+  UNKNOWN: '상태 확인 필요',
 };
 
 const PLATFORM_LABELS: Record<Platform, string> = {
-  DAANGN: '당근마켓',
-  BUNGJANG: '번개장터',
-  JOONGGONARA: '중고나라',
+  BUNJANG: '번개장터',
+  JOONGNA: '중고나라',
+  NAVER_FLEAMARKET: 'N플리마켓',
+  ELEVENST: '11번가',
 };
 
 const PLATFORM_STYLES: Record<Platform, { badge: string; button: string }> = {
-  DAANGN: {
+  NAVER_FLEAMARKET: {
     badge: 'bg-ds-accent-orange-bg text-ds-accent-orange-text',
     button: 'bg-ds-brand hover:bg-ds-brand-hovered',
   },
-  BUNGJANG: {
+  BUNJANG: {
     badge: 'bg-ds-accent-yellow-bg text-ds-accent-yellow-text',
     button: 'bg-ds-brand hover:bg-ds-brand-hovered',
   },
-  JOONGGONARA: {
+  JOONGNA: {
     badge: 'bg-ds-accent-red-bg text-ds-accent-red-text',
+    button: 'bg-ds-brand hover:bg-ds-brand-hovered',
+  },
+  // 새상품 채널이라 중고 셋과 색 계열을 구분한다.
+  ELEVENST: {
+    badge: 'bg-ds-accent-purple-bg text-ds-accent-purple-text',
     button: 'bg-ds-brand hover:bg-ds-brand-hovered',
   },
 };

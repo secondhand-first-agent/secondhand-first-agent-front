@@ -1,7 +1,20 @@
 import { z } from 'zod';
 
-export const platformSchema = z.enum(['DAANGN', 'BUNGJANG', 'JOONGGONARA']);
-export const conditionSchema = z.enum(['UNOPENED', 'LIKE_NEW', 'GOOD', 'USED']);
+// 크롤러 통합 스키마와 동일하게 맞춘다.
+// 정의 원본: data-analysis/docs/통합_스키마_정의.md
+// 앞의 셋은 중고, ELEVENST는 새상품 비교 기준. 당근마켓은 수집 대상이 아니다.
+export const platformSchema = z.enum(['BUNJANG', 'JOONGNA', 'NAVER_FLEAMARKET', 'ELEVENST']);
+
+// UNSPECIFIED는 판매자가 상태를 안 적은 것, UNKNOWN은 우리가 해석하지 못한 것이다.
+// 둘 다 "상태가 나쁘다"는 뜻이 아니므로 USED로 묶지 않는다.
+export const conditionSchema = z.enum([
+  'NEW',
+  'LIKE_NEW',
+  'LIGHTLY_USED',
+  'USED',
+  'UNSPECIFIED',
+  'UNKNOWN',
+]);
 export const searchSortSchema = z.enum(['AI_RECOMMENDED', 'PRICE_ASC', 'DISTANCE_ASC']);
 
 export const parsedConditionsSchema = z.object({
