@@ -4,12 +4,12 @@ import { fetchBestDeals } from '@/api/products/best-deal.api';
 import { fetchProducts, type ProductListParams } from '@/api/products/product.api';
 
 export const productQueryKeys = {
-  all: ['products'] as const,
-  lists: () => [...productQueryKeys.all, 'list'] as const,
-  list: (params: ProductListParams) => [...productQueryKeys.lists(), params] as const,
-  details: () => [...productQueryKeys.all, 'detail'] as const,
-  detail: (id: string) => [...productQueryKeys.details(), id] as const,
-  bestDeals: () => [...productQueryKeys.all, 'best-deals'] as const,
+  all: ['products'],
+  lists: () => [...productQueryKeys.all, 'list'],
+  list: (params: ProductListParams) => [...productQueryKeys.lists(), params],
+  details: () => [...productQueryKeys.all, 'detail'],
+  detail: (id: string) => [...productQueryKeys.details(), id],
+  bestDeals: () => [...productQueryKeys.all, 'best-deals'],
 };
 
 export const productQueries = {

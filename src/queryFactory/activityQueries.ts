@@ -4,7 +4,7 @@ import { fetchRedirectHistories } from '@/api/activities/activity.api';
 
 export const activityQueryKeys = {
   all: ['activities'] as const,
-  redirectHistories: () => [...activityQueryKeys.all, 'redirect-histories'] as const,
+  redirectHistories: () => [...activityQueryKeys.all, 'redirect-histories'],
 };
 
 export const activityQueries = {

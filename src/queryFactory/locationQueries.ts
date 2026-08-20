@@ -5,8 +5,8 @@ import { searchLocations } from '@/api/locations/location.api';
 export const MIN_LOCATION_QUERY_LENGTH = 2;
 
 export const locationQueryKeys = {
-  all: ['locations'] as const,
-  search: (query: string) => [...locationQueryKeys.all, 'search', query] as const,
+  all: ['locations'],
+  search: (query: string) => [...locationQueryKeys.all, 'search', query],
 };
 
 export const locationQueries = {

@@ -3,9 +3,9 @@ import { queryOptions } from '@tanstack/react-query';
 import { fetchMe, fetchRecentSearches } from '@/api/users/user.api';
 
 export const userQueryKeys = {
-  all: ['users'] as const,
-  me: () => [...userQueryKeys.all, 'me'] as const,
-  recentSearches: () => [...userQueryKeys.all, 'recent-searches'] as const,
+  all: ['users'],
+  me: () => [...userQueryKeys.all, 'me'],
+  recentSearches: () => [...userQueryKeys.all, 'recent-searches'],
 };
 
 export const userQueries = {
