@@ -1,11 +1,5 @@
 import { z } from 'zod';
 
-export const regionSchema = z.object({
-  id: z.coerce.string(),
-  name: z.string(),
-  district: z.string(),
-});
-
 export const userStatsSchema = z.object({
   favoriteCount: z.number().int().nonnegative(),
   platformRedirectCount: z.number().int().nonnegative(),
@@ -14,10 +8,6 @@ export const userStatsSchema = z.object({
 
 const EMPTY_STATS = { favoriteCount: 0, platformRedirectCount: 0, aiSearchCount: 0 };
 
-/**
- * 서버 응답(`GET /users/me`)을 화면이 쓰는 형태로 변환합니다.
- * `region` / `stats` 는 아직 서버에 없어서 기본값으로 채웁니다.
- */
 export const meSchema = z
   .object({
     userId: z.coerce.string(),
@@ -25,7 +15,7 @@ export const meSchema = z
     email: z.email(),
     profileImageUrl: z.string().nullable().optional(),
     createdAt: z.string(),
-    region: regionSchema.nullable().optional(),
+    region: z.string().nullable().optional(),
     stats: userStatsSchema.optional(),
   })
   .transform((user) => ({
@@ -49,7 +39,6 @@ export const updateProfileSchema = z.object({
   profileImageUrl: z.string().nullable().optional(),
 });
 
-export type Region = z.infer<typeof regionSchema>;
 export type UserStats = z.infer<typeof userStatsSchema>;
 export type Me = z.infer<typeof meSchema>;
 export type RecentSearch = z.infer<typeof recentSearchSchema>;

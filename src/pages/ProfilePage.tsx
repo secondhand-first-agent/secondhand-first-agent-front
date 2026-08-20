@@ -7,6 +7,7 @@ import type { Me } from '@/api/users/user.schema';
 import { ROUTES } from '@/app/routes';
 import { Avatar } from '@/components/Avatar';
 import { CarbonQuestCard } from '@/features/rewards/components/CarbonQuestCard';
+import { useCarbonQuest } from '@/hooks/useCarbonQuest';
 import { queryFactory } from '@/queryFactory';
 
 function formatJoinedAt(joinedAt: string) {
@@ -16,15 +17,15 @@ function formatJoinedAt(joinedAt: string) {
 
 function profileSubtitle(me: Me) {
   const parts = [formatJoinedAt(me.joinedAt)];
-  if (me.region) parts.push(me.region.name, me.region.district);
+  if (me.region) parts.push(me.region);
   return parts.join(' · ');
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function StatCard({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
   return (
     <div className="rounded-ds-lg border-ds-border bg-ds-surface border px-5 py-4">
       <p className="text-ds-body text-ds-text-subtle">{label}</p>
-      <p className="text-ds-h-lg font-ds-bold text-ds-text mt-1.5">{value}</p>
+      <p className={`text-ds-h-lg font-ds-bold mt-1.5 ${accent ? 'text-ds-success-text' : 'text-ds-text'}`}>{value}</p>
     </div>
   );
 }
@@ -32,6 +33,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
 export function ProfilePage() {
   const { data: me, isPending, isError, error } = useQuery(queryFactory.users.me());
   const recentSearches = useQuery(queryFactory.users.recentSearches());
+  const { points: carbonPoints } = useCarbonQuest();
 
   if (isPending) return <p className="text-ds-text-subtle mx-auto max-w-5xl px-4 py-16">불러오는 중…</p>;
   if (isError) return <p className="text-ds-danger-text mx-auto max-w-5xl px-4 py-16">{getErrorMessage(error)}</p>;
@@ -54,9 +56,10 @@ export function ProfilePage() {
         </Link>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2">
+      <section className="grid gap-4 sm:grid-cols-3">
         <StatCard label="플랫폼 이동" value={`${me.stats.platformRedirectCount}회`} />
         <StatCard label="AI 검색 횟수" value={`${me.stats.aiSearchCount}회`} />
+        <StatCard label="모은 포인트" value={`${carbonPoints.toLocaleString('ko-KR')}P`} accent />
       </section>
 
       <CarbonQuestCard />

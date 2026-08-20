@@ -233,14 +233,6 @@ const bestDeals: BestDealList = {
 
 const isAuthed = (request: Request) => Boolean(request.headers.get('Authorization'));
 
-const regions = [
-  { id: '101', name: '판교동', district: '성남시 분당구' },
-  { id: '102', name: '정자동', district: '성남시 분당구' },
-  { id: '103', name: '서현동', district: '성남시 분당구' },
-  { id: '104', name: '삼평동', district: '성남시 분당구' },
-  { id: '201', name: '역삼동', district: '서울 강남구' },
-];
-
 const recentSearches = [
   { id: '1', keyword: '30만원으로 에어팟 사고 싶어, 중고 괜찮아', searchedAt: '2026-08-18T11:20:00.000Z' },
   { id: '2', keyword: '맥북 에어 M2 100만원 아래', searchedAt: '2026-08-17T08:05:00.000Z' },
@@ -339,8 +331,6 @@ export const handlers = [
   http.get('*/products/best-deals', () => HttpResponse.json(envelope(bestDeals))),
 
   http.get('*/products', () => HttpResponse.json(envelope(products))),
-
-  http.get('*/regions', () => HttpResponse.json(envelope(regions))),
 
   http.get('*/users/me/searches', ({ request }) => {
     if (!isAuthed(request)) return unauthorized();

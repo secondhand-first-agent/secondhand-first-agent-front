@@ -4,24 +4,11 @@ import apiClient from '../apiClient';
 import { ENDPOINTS } from '../endpoints';
 import { unwrap } from '../response';
 
-import {
-  meSchema,
-  recentSearchSchema,
-  regionSchema,
-  type Me,
-  type RecentSearch,
-  type Region,
-  type UpdateProfileRequest,
-} from './user.schema';
+import { meSchema, recentSearchSchema, type Me, type RecentSearch, type UpdateProfileRequest } from './user.schema';
 
 export async function fetchMe(): Promise<Me> {
   const { data } = await apiClient.get(ENDPOINTS.users.me);
   return unwrap(meSchema, data);
-}
-
-export async function fetchRegions(): Promise<Region[]> {
-  const { data } = await apiClient.get(ENDPOINTS.users.regions);
-  return unwrap(z.array(regionSchema), data);
 }
 
 export async function fetchRecentSearches(): Promise<RecentSearch[]> {

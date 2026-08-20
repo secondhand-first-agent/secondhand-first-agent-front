@@ -8,8 +8,11 @@ export const ENDPOINTS = {
   },
   users: {
     me: '/users/me',
-    regions: '/regions',
+    location: '/users/me/location',
     recentSearches: '/users/me/searches',
+  },
+  locations: {
+    search: '/locations/search',
   },
   products: {
     list: '/products',

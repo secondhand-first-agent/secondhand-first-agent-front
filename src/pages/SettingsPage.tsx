@@ -9,13 +9,14 @@ import { FormAlert } from '@/components/FormAlert';
 import { ProfileImagePicker } from '@/components/ProfileImagePicker';
 import { SettingRow } from '@/components/SettingRow';
 import { PasswordChangeForm } from '@/features/auth/components/PasswordChangeForm';
+import { RegionPicker } from '@/features/regions/components/RegionPicker';
 import { useLogoutMutation } from '@/hooks/useAuthMutations';
+import { useUpdateLocationMutation } from '@/hooks/useLocationMutations';
 import { useUpdateProfileMutation, useWithdrawMutation } from '@/hooks/useUserMutations';
 import { queryFactory } from '@/queryFactory';
 
-type EditingField = 'name' | 'password' | null;
+type EditingField = 'name' | 'password' | 'region' | null;
 
-/** 아직 서버가 지원하지 않는 항목에 붙입니다. */
 function ComingSoon() {
   return <span className="text-ds-body text-ds-text-subtlest shrink-0 px-1">준비 중</span>;
 }
@@ -40,6 +41,7 @@ export function SettingsPage() {
   const navigate = useNavigate();
   const { data: me, isPending, isError, error } = useQuery(queryFactory.users.me());
   const updateProfile = useUpdateProfileMutation();
+  const updateLocation = useUpdateLocationMutation();
   const withdrawMutation = useWithdrawMutation();
   const logoutMutation = useLogoutMutation();
 
@@ -144,9 +146,23 @@ export function SettingsPage() {
         <SettingRow
           label="위치"
           leading={<MapPin className="text-ds-text-subtlest size-4" aria-hidden />}
-          description={me.region ? `${me.region.name}, ${me.region.district}` : '설정되지 않음'}
-          action={<ComingSoon />}
-        />
+          description={me.region ?? '설정되지 않음'}
+          action={
+            editing === 'region' ? null : (
+              <ChangeButton onClick={() => setEditing('region')}>{me.region ? '변경' : '설정'}</ChangeButton>
+            )
+          }
+        >
+          {editing === 'region' ? (
+            <RegionPicker
+              currentRegion={me.region}
+              isSaving={updateLocation.isPending}
+              saveError={updateLocation.isError ? getErrorMessage(updateLocation.error) : undefined}
+              onCancel={close}
+              onSave={(region) => updateLocation.mutate(region, { onSuccess: close })}
+            />
+          ) : null}
+        </SettingRow>
       </section>
 
       <SectionTitle>계정</SectionTitle>

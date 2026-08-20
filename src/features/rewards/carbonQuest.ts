@@ -21,6 +21,9 @@ export const PURCHASE_REWARD_POINT = 1_000;
 
 const STORAGE_KEY = 'carbonQuest';
 
+/** 모은 포인트는 날짜별 진행도와 달리 계속 남아야 해서 따로 보관합니다. */
+const POINT_STORAGE_KEY = 'carbonPoints';
+
 interface QuestRecord {
   /** 로컬 기준 YYYY-MM-DD. 날짜가 바뀌면 진행도를 처음부터 다시 셉니다. */
   date: string;
@@ -69,17 +72,31 @@ export function getViewedCount(): number {
   return read().productIds.length;
 }
 
+/** 지금까지 모은 포인트. 날짜가 바뀌어도 초기화되지 않고 계속 쌓입니다. */
+export function getEarnedPoints(): number {
+  try {
+    const stored = Number(localStorage.getItem(POINT_STORAGE_KEY));
+    return Number.isFinite(stored) && stored > 0 ? stored : 0;
+  } catch {
+    return 0;
+  }
+}
+
 export function recordCarbonProductView(productId: string) {
   const record = read();
 
   // 같은 상품을 다시 봐도 세지 않고, 이미 다 채웠으면 더 쌓지 않습니다.
   if (record.productIds.includes(productId) || record.productIds.length >= DAILY_VIEW_GOAL) return;
 
+  const productIds = [...record.productIds, productId];
+
   try {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ date: record.date, productIds: [...record.productIds, productId] })
-    );
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: record.date, productIds }));
+
+    // 목표를 막 채운 순간에만 적립합니다. 위에서 상한을 막아두어 하루에 한 번만 이 지점을 지납니다.
+    if (productIds.length === DAILY_VIEW_GOAL) {
+      localStorage.setItem(POINT_STORAGE_KEY, String(getEarnedPoints() + VIEW_REWARD_POINT));
+    }
   } catch {
     // 저장할 수 없는 환경(시크릿 모드 등)에서는 미션만 진행되지 않고, 화면은 그대로 동작합니다.
     return;
