@@ -1,7 +1,7 @@
 import { Check, Info, Leaf } from 'lucide-react';
 
+import type { CarbonQuest } from '@/api/users/user.schema';
 import { PURCHASE_REWARD_POINT, VIEW_REWARD_POINT } from '@/features/rewards/carbonQuest';
-import { useCarbonQuest } from '@/hooks/useCarbonQuest';
 
 function formatPoint(point: number) {
   return `${point.toLocaleString('ko-KR')}P`;
@@ -23,8 +23,10 @@ function ProgressSteps({ viewed, goal }: { viewed: number; goal: number }) {
   );
 }
 
-export function CarbonQuestCard() {
-  const { viewed, goal, completed } = useCarbonQuest();
+export function CarbonQuestCard({ quest, isPending = false }: { quest?: CarbonQuest; isPending?: boolean }) {
+  const viewed = quest?.viewedCount ?? 0;
+  const goal = quest?.goal ?? 3;
+  const completed = quest?.completed ?? false;
   const remaining = Math.max(goal - viewed, 0);
 
   return (
@@ -45,7 +47,7 @@ export function CarbonQuestCard() {
             completed ? 'bg-ds-success-bg text-ds-success-text' : 'bg-ds-neutral text-ds-text-subtle'
           }`}
         >
-          오늘 {viewed}/{goal}
+          {isPending ? '조회 중' : `오늘 ${viewed}/${goal}`}
         </span>
       </div>
 

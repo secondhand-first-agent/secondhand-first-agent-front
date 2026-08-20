@@ -26,6 +26,17 @@ export const bestDealListSchema = z.object({
   totalElements: z.number().int().nonnegative(),
 });
 
+export const bestDealPageSchema = z
+  .object({
+    content: z.array(bestDealSchema),
+    page: z.number().int().nonnegative(),
+    size: z.number().int().positive(),
+    totalElements: z.number().int().nonnegative(),
+    hasNext: z.boolean(),
+  })
+  .transform(({ content, totalElements }) => ({ items: content, totalElements }));
+
 export type BestDealCategory = z.infer<typeof bestDealCategorySchema>;
 export type BestDeal = z.infer<typeof bestDealSchema>;
 export type BestDealList = z.infer<typeof bestDealListSchema>;
+export type BestDealPageResponse = z.input<typeof bestDealPageSchema>;

@@ -7,7 +7,6 @@ import type { Me } from '@/api/users/user.schema';
 import { ROUTES } from '@/app/routes';
 import { Avatar } from '@/components/Avatar';
 import { CarbonQuestCard } from '@/features/rewards/components/CarbonQuestCard';
-import { useCarbonQuest } from '@/hooks/useCarbonQuest';
 import { queryFactory } from '@/queryFactory';
 
 function formatJoinedAt(joinedAt: string) {
@@ -21,19 +20,19 @@ function profileSubtitle(me: Me) {
   return parts.join(' · ');
 }
 
-function StatCard({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
+function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-ds-lg border-ds-border bg-ds-surface border px-5 py-4">
       <p className="text-ds-body text-ds-text-subtle">{label}</p>
-      <p className={`text-ds-h-lg font-ds-bold mt-1.5 ${accent ? 'text-ds-success-text' : 'text-ds-text'}`}>{value}</p>
+      <p className="text-ds-h-lg font-ds-bold text-ds-text mt-1.5">{value}</p>
     </div>
   );
 }
 
 export function ProfilePage() {
   const { data: me, isPending, isError, error } = useQuery(queryFactory.users.me());
+  const dashboard = useQuery(queryFactory.users.dashboard());
   const recentSearches = useQuery(queryFactory.users.recentSearches());
-  const { points: carbonPoints } = useCarbonQuest();
 
   if (isPending) return <p className="text-ds-text-subtle mx-auto max-w-5xl px-4 py-16">불러오는 중…</p>;
   if (isError) return <p className="text-ds-danger-text mx-auto max-w-5xl px-4 py-16">{getErrorMessage(error)}</p>;
@@ -56,13 +55,26 @@ export function ProfilePage() {
         </Link>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="플랫폼 이동" value={`${me.stats.platformRedirectCount}회`} />
-        <StatCard label="AI 검색 횟수" value={`${me.stats.aiSearchCount}회`} />
-        <StatCard label="모은 포인트" value={`${carbonPoints.toLocaleString('ko-KR')}P`} accent />
-      </section>
+      {dashboard.isError ? (
+        <section
+          className="rounded-ds-lg border-ds-danger-border bg-ds-danger-bg text-ds-body text-ds-danger-text border px-5 py-4"
+          role="alert"
+        >
+          대시보드 정보를 불러오지 못했습니다. {getErrorMessage(dashboard.error)}
+        </section>
+      ) : (
+        <>
+          <section className="grid gap-4 sm:grid-cols-2">
+            <StatCard
+              label="플랫폼 이동"
+              value={dashboard.data ? `${dashboard.data.stats.platformRedirectCount}회` : '—'}
+            />
+            <StatCard label="AI 검색 횟수" value={dashboard.data ? `${dashboard.data.stats.aiSearchCount}회` : '—'} />
+          </section>
 
-      <CarbonQuestCard />
+          <CarbonQuestCard quest={dashboard.data?.carbonQuest} isPending={dashboard.isPending} />
+        </>
+      )}
 
       <section className="rounded-ds-lg border-ds-border bg-ds-surface border">
         <h2 className="border-ds-border text-ds-body font-ds-semibold text-ds-text border-b px-6 py-4">최근 검색</h2>
