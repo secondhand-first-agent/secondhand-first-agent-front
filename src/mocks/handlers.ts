@@ -1,8 +1,9 @@
 import { http, HttpResponse } from 'msw';
 
-import type { RedirectHistory } from '@/api/activities/activity.schema';
-import type { BestDealList } from '@/api/products/best-deal.schema';
+import type { PlatformRedirect, RedirectHistory } from '@/api/activities/activity.schema';
+import type { BestDealPageResponse } from '@/api/products/best-deal.schema';
 import type { ProductList } from '@/api/products/product.schema';
+import type { RecentSearchSessionPageResponse, UserDashboard } from '@/api/users/user.schema';
 
 const envelope = <T>(data: T) => ({ message: 'ok', data });
 
@@ -38,9 +39,12 @@ const products: ProductList = {
   nextCursor: null,
 };
 
-const bestDeals: BestDealList = {
+const bestDeals: BestDealPageResponse = {
+  page: 0,
+  size: 11,
   totalElements: 11,
-  items: [
+  hasNext: false,
+  content: [
     {
       productId: 'mock_1',
       rank: 1,
@@ -222,11 +226,55 @@ const bestDeals: BestDealList = {
 
 const isAuthed = (request: Request) => Boolean(request.headers.get('Authorization'));
 
-const recentSearches = [
-  { id: '1', keyword: '30만원으로 에어팟 사고 싶어, 중고 괜찮아', searchedAt: '2026-08-18T11:20:00.000Z' },
-  { id: '2', keyword: '맥북 에어 M2 100만원 아래', searchedAt: '2026-08-17T08:05:00.000Z' },
-  { id: '3', keyword: '애플워치 SE 미개봉', searchedAt: '2026-08-15T15:42:00.000Z' },
-];
+const recentSearches: RecentSearchSessionPageResponse = {
+  content: [
+    {
+      sessionId: 'session-1',
+      keyword: '에어팟 프로 2',
+      querySummary: '30만원으로 에어팟 사고 싶어, 중고 괜찮아',
+      lastMessage: '조건에 맞는 상품을 찾았어요.',
+      resultCount: 11,
+      updatedAt: '2026-08-18T20:20:00+09:00',
+    },
+    {
+      sessionId: 'session-2',
+      keyword: '맥북 에어 M2',
+      querySummary: '맥북 에어 M2 100만원 아래',
+      lastMessage: '가격이 낮은 순서로 정리했어요.',
+      resultCount: 8,
+      updatedAt: '2026-08-17T17:05:00+09:00',
+    },
+    {
+      sessionId: 'session-3',
+      keyword: '애플워치 SE',
+      querySummary: '애플워치 SE 미개봉',
+      lastMessage: '미개봉 상품을 우선 추천했어요.',
+      resultCount: 5,
+      updatedAt: '2026-08-16T00:42:00+09:00',
+    },
+  ],
+  page: 0,
+  size: 3,
+  totalElements: 3,
+  hasNext: false,
+};
+
+const dashboard: UserDashboard = {
+  stats: { platformRedirectCount: 8, aiSearchCount: 3 },
+  carbonQuest: {
+    date: '2026-08-21',
+    viewedCount: 2,
+    goal: 3,
+    completed: false,
+    earnedPoints: 0,
+  },
+};
+
+const platformRedirect: PlatformRedirect = {
+  platform: 'NAVER_FLEAMARKET',
+  redirectUrl: 'https://fleamarket.naver.com/',
+  redirectedAt: '2026-08-21T09:00:00+09:00',
+};
 
 const redirectHistories: RedirectHistory[] = [
   {
@@ -321,9 +369,24 @@ export const handlers = [
 
   http.get('*/products', () => HttpResponse.json(envelope(products))),
 
-  http.get('*/users/me/searches', ({ request }) => {
+  http.get('*/users/me/search-sessions', ({ request }) => {
     if (!isAuthed(request)) return unauthorized();
     return HttpResponse.json(envelope(recentSearches));
+  }),
+
+  http.get('*/users/me/dashboard', ({ request }) => {
+    if (!isAuthed(request)) return unauthorized();
+    return HttpResponse.json(envelope(dashboard));
+  }),
+
+  http.post('*/products/:productId/views', ({ request }) => {
+    if (!isAuthed(request)) return unauthorized();
+    return HttpResponse.json(envelope({ counted: true }));
+  }),
+
+  http.post('*/products/:productId/redirect', ({ request }) => {
+    if (!isAuthed(request)) return unauthorized();
+    return HttpResponse.json(envelope(platformRedirect));
   }),
 
   http.get('*/users/me/redirect-histories', ({ request }) => {

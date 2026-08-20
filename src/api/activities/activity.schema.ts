@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
-export const activityPlatformSchema = z.enum(['NAVER_FLEAMARKET', 'BUNJANG', 'JOONGNA']);
+import { platformSchema } from '@/api/searches/search.schema';
+
+export const activityPlatformSchema = platformSchema;
 
 export const redirectHistorySchema = z.object({
   id: z.string(),
@@ -15,5 +17,12 @@ export const redirectHistorySchema = z.object({
 
 export const redirectHistoryListSchema = z.array(redirectHistorySchema);
 
+export const platformRedirectSchema = z.object({
+  platform: activityPlatformSchema,
+  redirectUrl: z.url(),
+  redirectedAt: z.iso.datetime({ offset: true }),
+});
+
 export type ActivityPlatform = z.infer<typeof activityPlatformSchema>;
 export type RedirectHistory = z.infer<typeof redirectHistorySchema>;
+export type PlatformRedirect = z.infer<typeof platformRedirectSchema>;

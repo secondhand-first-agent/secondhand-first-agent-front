@@ -13,14 +13,17 @@ import {
   Thermometer,
   type LucideIcon,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 
 import type { Condition, Platform, SearchResultProduct } from '@/api/searches/search.schema';
+import { recordPlatformRedirect, recordProductView } from '@/api/activities/activity.api';
+import { getErrorMessage } from '@/api/response';
 import { ROUTES, productDetailPath } from '@/app/routes';
 import { createMockProductDetail } from '@/features/products/product-detail.mock';
-import { recordCarbonProductView } from '@/features/rewards/carbonQuest';
 import { createMockSearchData } from '@/features/search/search.mock';
+import { userQueryKeys } from '@/queryFactory/userQueries';
 
 const CONDITION_LABELS: Record<Condition, string> = {
   NEW: '미개봉',
@@ -63,6 +66,12 @@ const PHOTO_PLACEHOLDERS: LucideIcon[] = [Headphones, Package, ReceiptText, Spar
 
 function formatPrice(price: number) {
   return `₩${price.toLocaleString('ko-KR')}`;
+}
+
+/** 검색 화면의 임시 mock_1 ID를 로컬 백엔드 fixture ID 1로 연결합니다. */
+function toBackendProductId(productId: string) {
+  const matched = productId.match(/^(?:mock_|prod_)?(\d+)$/);
+  return matched?.[1] ?? productId;
 }
 
 function PlatformBadge({ platform }: { platform: Platform }) {
@@ -115,12 +124,16 @@ function RankedProductCard({ product, rank, query }: { product: SearchResultProd
 }
 
 export function ProductDetailPage() {
+  const queryClient = useQueryClient();
+  const recordedProductIdRef = useRef<string | null>(null);
   const { productId = 'mock_1' } = useParams<{ productId: string }>();
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') ?? '30만원으로 에어팟 사고 싶어, 중고 괜찮아';
   const detail = useMemo(() => createMockProductDetail(productId, query), [productId, query]);
   const rankedProducts = useMemo(() => createMockSearchData(query).results.content.slice(0, 3), [query]);
   const [activePhoto, setActivePhoto] = useState(0);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [redirectError, setRedirectError] = useState<string | null>(null);
 
   /*
    * 탄소 절감 미션 진행도를 쌓는다. 지금은 모든 상품에 탄소 절감 태그가 붙으므로
@@ -128,8 +141,14 @@ export function ProductDetailPage() {
    */
   useEffect(() => {
     if (!detail) return;
-    recordCarbonProductView(productId);
-  }, [detail, productId]);
+    const backendProductId = toBackendProductId(productId);
+    if (recordedProductIdRef.current === backendProductId) return;
+    recordedProductIdRef.current = backendProductId;
+
+    void recordProductView(backendProductId)
+      .then(() => queryClient.invalidateQueries({ queryKey: userQueryKeys.dashboard() }))
+      .catch(() => undefined);
+  }, [detail, productId, queryClient]);
 
   if (!detail) {
     return (
@@ -150,6 +169,26 @@ export function ProductDetailPage() {
     ? `${ROUTES.search}?q=${encodeURIComponent(searchParams.get('q') ?? '')}`
     : ROUTES.search;
   const platformStyle = PLATFORM_STYLES[product.platform];
+
+  const handlePlatformRedirect = async () => {
+    if (isRedirecting) return;
+    setIsRedirecting(true);
+    setRedirectError(null);
+    const externalWindow = window.open('about:blank', '_blank');
+    if (externalWindow) externalWindow.opener = null;
+
+    try {
+      const response = await recordPlatformRedirect(toBackendProductId(productId));
+      if (externalWindow) externalWindow.location.href = response.redirectUrl;
+      else window.location.href = response.redirectUrl;
+      await queryClient.invalidateQueries({ queryKey: userQueryKeys.dashboard() });
+    } catch (error) {
+      externalWindow?.close();
+      setRedirectError(getErrorMessage(error));
+    } finally {
+      setIsRedirecting(false);
+    }
+  };
 
   return (
     <section className="bg-[#f8fafc] px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
@@ -284,16 +323,21 @@ export function ProductDetailPage() {
                 </span>
               </div>
               <div className="mt-7 flex gap-3">
-                <a
-                  href={detail.platformUrl}
-                  target="_blank"
-                  rel="noreferrer"
+                <button
+                  type="button"
+                  onClick={() => void handlePlatformRedirect()}
+                  disabled={isRedirecting}
                   className={`rounded-ds-lg text-ds-body-lg font-ds-bold text-ds-text-inverse flex min-w-0 flex-1 items-center justify-center gap-2 px-4 py-4 transition-colors ${platformStyle.button}`}
                 >
-                  {PLATFORM_LABELS[product.platform]}으로 이동하기
+                  {isRedirecting ? '이동 준비 중…' : `${PLATFORM_LABELS[product.platform]}으로 이동하기`}
                   <ExternalLink className="size-4" aria-hidden />
-                </a>
+                </button>
               </div>
+              {redirectError ? (
+                <p className="text-ds-body-sm text-ds-danger-text mt-3 text-center" role="alert">
+                  {redirectError}
+                </p>
+              ) : null}
               <p className="text-ds-body-sm text-ds-text-subtlest mt-4 text-center">
                 채팅과 결제는 {PLATFORM_LABELS[product.platform]}에서 진행돼요
               </p>

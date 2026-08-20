@@ -9,7 +9,7 @@ export const ENDPOINTS = {
   users: {
     me: '/users/me',
     location: '/users/me/location',
-    recentSearches: '/users/me/searches',
+    dashboard: '/users/me/dashboard',
   },
   locations: {
     search: '/locations/search',
@@ -20,6 +20,8 @@ export const ENDPOINTS = {
     refresh: (productId: string) => `/products/${productId}/refresh`,
     bestDeals: '/products/best-deals',
     similar: (productId: string) => `/products/${productId}/similar`,
+    view: (productId: string) => `/products/${productId}/views`,
+    redirect: (productId: string) => `/products/${productId}/redirect`,
   },
   searches: {
     sessions: '/search-sessions',

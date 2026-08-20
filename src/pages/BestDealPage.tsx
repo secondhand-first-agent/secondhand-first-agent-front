@@ -13,7 +13,7 @@ import {
   Watch,
   type LucideIcon,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 
 import type { BestDeal, BestDealCategory } from '@/api/products/best-deal.schema';
@@ -59,6 +59,7 @@ const PLATFORM_STYLES: Record<BestDeal['platform'], string> = {
 
 /** 카테고리별로 색을 나누면 의미 없는 구분이 생기므로, 썸네일 배경은 하나로 통일한다. */
 const THUMBNAIL_BACKGROUND = 'bg-ds-surface-hovered';
+const EMPTY_DEALS: BestDeal[] = [];
 
 function formatPrice(price: number) {
   return `₩${price.toLocaleString('ko-KR')}`;
@@ -214,10 +215,7 @@ export function BestDealPage() {
   const [sort, setSort] = useState<BestDealSort>('AI_RECOMMENDED');
   const [showAll, setShowAll] = useState(false);
   const { data, isPending, isError, error, refetch, isFetching } = useQuery(queryFactory.products.bestDeals());
-  const deals = data?.items ?? [];
-
-  useEffect(() => {
-  }, [deals]);
+  const deals = data?.items ?? EMPTY_DEALS;
 
   const sortedDeals = useMemo(() => {
     const filtered = deals.filter((deal) => category === 'ALL' || deal.category === category);
@@ -232,7 +230,6 @@ export function BestDealPage() {
   const featuredDeals = sortedDeals.slice(0, 3);
   const additionalDeals = sortedDeals.slice(3);
   const visibleAdditionalDeals = showAll ? additionalDeals : additionalDeals.slice(0, 6);
-
 
   return (
     <section className="bg-[#f8fafc] px-4 py-10 sm:px-6 lg:px-8 lg:py-12">

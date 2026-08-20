@@ -1,11 +1,12 @@
 import { queryOptions } from '@tanstack/react-query';
 
-import { fetchMe, fetchRecentSearches } from '@/api/users/user.api';
+import { fetchDashboard, fetchMe, fetchRecentSearches } from '@/api/users/user.api';
 
 export const userQueryKeys = {
-  all: ['users'],
-  me: () => [...userQueryKeys.all, 'me'],
-  recentSearches: () => [...userQueryKeys.all, 'recent-searches'],
+  all: ['users'] as const,
+  me: () => [...userQueryKeys.all, 'me'] as const,
+  recentSearches: () => [...userQueryKeys.all, 'recent-searches'] as const,
+  dashboard: () => [...userQueryKeys.all, 'dashboard'] as const,
 };
 
 export const userQueries = {
@@ -18,5 +19,10 @@ export const userQueries = {
     queryOptions({
       queryKey: userQueryKeys.recentSearches(),
       queryFn: fetchRecentSearches,
+    }),
+  dashboard: () =>
+    queryOptions({
+      queryKey: userQueryKeys.dashboard(),
+      queryFn: fetchDashboard,
     }),
 };
